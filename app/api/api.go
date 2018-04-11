@@ -59,23 +59,6 @@ func BuildAppErrors() {
 	AppRespErrors.LoginError = errorCode{"LOGIN_ERROR", "Your username and/or password is wrong"}
 }
 
-// InitMetaHandlers starts the meta api handlers
-func InitMetaHandlers(r *mux.Router, prefix string) {
-	nameSpace := "meta"
-	r.Handle(fmt.Sprintf("/%s/%s/v1/errorcode", prefix, nameSpace), middleware.Adapt(metaErrorDisplayHandler()))
-}
-
-// metaErrorDisplayHandler displays all the application errors to frontend
-func metaErrorDisplayHandler() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		appResp := Response{}
-		appResp.Data = AppRespErrors
-		appResp.Send(w)
-
-	})
-}
-
 func RouteBuilder(prefix string, namespace string, version string, method string) string {
 	route := fmt.Sprintf("/%s/%s/%s/%s", prefix, namespace, version, method)
 	log.Println(route)
