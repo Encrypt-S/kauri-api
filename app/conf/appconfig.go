@@ -16,6 +16,14 @@ type AppConfig struct {
 	RunningNavVersion string   `json:"runningNavVersion"`
 	AllowedIps        []string `json:"allowedIps"`
 	UIPassword        string   `json:"uiPassword"`
+	Coins			  []Coins 	`json:"coins"`
+}
+
+type Coins struct {
+	DaemonVersion	string `json:"daemonVersion"`
+	CurrencyCode	string `json:"currencyCode"`
+	LatestReleaseAPI string `json:"latestReleaseApi"`
+	ReleaseAPI       string `json:"ReleaseApi"`
 }
 
 // StartConfigManager sets up the ticker loop to load app config
@@ -41,42 +49,17 @@ func LoadAppConfig() error {
 		return err
 	}
 
-	appconfig := parseAppConfig(AppConfig{})
+	//parse out the config
+	var appConfig AppConfig
+	err = viper.UnmarshalKey("config", &appConfig)
 
-	AppConf = appconfig
-
-	return nil
-}
-
-// MockAppConfig mocks out and saves the app config
-func MockAppConfig() (AppConfig, error) {
-
-	mockConfig := AppConfig{}
-	mockConfig.NavConf = "$HOME/Library/Application Support/NavCoin4/navcoin.conf"
-	mockConfig.RunningNavVersion = "4.1.1"
-	//mockConfig.DetectedIp = "1.1.1.1.1"
-
-	AppConf = mockConfig
-
-	err := SaveAppConfig()
 	if err != nil {
-		log.Println("Unable to save mocked app config")
-		log.Println("err", err)
+		return err
 	}
 
-	return mockConfig, nil
-}
+	AppConf = appConfig
 
-// parseAppConfig takes AppConfig, parses and returns appconf
-func parseAppConfig(appconf AppConfig) AppConfig {
-
-	appconf.NavConf = viper.GetString("navconf")
-	appconf.RunningNavVersion = viper.GetString("runningNavVersion")
-	appconf.AllowedIps = viper.GetStringSlice("allowedIps")
-	appconf.UIPassword = viper.GetString("uiPassword")
-
-	return appconf
-
+	return nil
 }
 
 // SaveAppConfig formats/indents json and saves to app-config.json

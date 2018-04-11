@@ -9,18 +9,15 @@ import (
 	"runtime"
 
 	"github.com/Encrypt-S/navpi-go/app/api"
-	"github.com/Encrypt-S/navpi-go/app/boxsetup/setupapi"
 	"github.com/Encrypt-S/navpi-go/app/conf"
-	"github.com/Encrypt-S/navpi-go/app/daemon"
-	"github.com/Encrypt-S/navpi-go/app/daemon/daemonapi"
-	"github.com/Encrypt-S/navpi-go/app/manager/managerapi"
-	"github.com/Encrypt-S/navpi-go/app/user"
 	"github.com/gorilla/mux"
 )
 
 func main() {
 
 	initMain()
+
+
 
 	// log out server runtime OS and Architecture
 	log.Println(fmt.Sprintf("Server running in %s:%s", runtime.GOOS, runtime.GOARCH))
@@ -47,6 +44,8 @@ func main() {
 	router := mux.NewRouter()
 	api.InitMetaHandlers(router, "api")
 
+	/*
+
 	// check to see if we have a defined running config
 	// If not we are only going to boot the setup apis, otherwise we will start the app
 	if conf.AppConf.RunningNavVersion == "" {
@@ -68,6 +67,7 @@ func main() {
 		user.InitSetupHandlers(router, "api")
 
 	}
+	*/
 
 	// Start http server
 	port := fmt.Sprintf(":%d", serverConfig.ManagerAPIPort)
