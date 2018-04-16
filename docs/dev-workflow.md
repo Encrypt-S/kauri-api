@@ -1,13 +1,13 @@
 # Developer Workflow
-Notes, config, and general workflow for navpi-go development
+Notes, config, and general workflow for Kauri API development
 
-## clone [navpi-go](https://github.com/Encrypt-S/navpi-go.git)
-This is the main project repo for NavPi 2.0 "Kowhai"
+## clone [kauri-api](https://github.com/Encrypt-S/kauri-api.git)
+This is the main project repo for the Kowhai API
 
-    git clone https://github.com/Encrypt-S/navpi-go.git
+    git clone https://github.com/Encrypt-S/kauri-api.git
 
 ## set project WORKDIR
-    /go/src/github.com/Encrypt-S/navpi-go/app
+    cd /go/src/github.com/Encrypt-S/kauri-api/app
 
 ## install main dependencies
     go get ./
@@ -26,22 +26,13 @@ This repo contains Docker files used to build and run containerized instances of
 
     git clone https://github.com/Encrypt-S/nav-docker.git
 
-## start service
-To run the service that spawns a Docker container running the navcoind daemon, simply run the command below in the directory containing the Docker files:
-
-    cd nav-docker/docker-navcoind
-    docker-compose up
-
-## post-install
-the install will take ages, but if you see the following you're good to go:
-
-    Starting dockernavcoind_testnet_1 ... done
-    Attaching to dockernavcoind_testnet_1
-
-the navcoind daemon is now running on the testnet
+## docker-navcoind
+View the info at [docker-navcoind](https://github.com/NAVCoin/nav-docker/blob/master/docker-navcoind/README.md) to run
+navcoind inside a Docker container. Make sure you have the docker image building properly and that
+`docker-compose up` successfully starts the service and runs the `navcoind` daemon.
 
 ## navcoin-cli access
-Open up a new terminal tab/window
+After you run `docker-compuse up` open up a new terminal tab/window and run:
 
     docker exec -it dockernavcoind_testnet_1 /bin/bash
 
