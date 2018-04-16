@@ -1,5 +1,5 @@
 - type: parallel
-  name: test_kauri_api
+  name: test_kauri
   steps:
     - service: kauri-api
       command: go test ./...
