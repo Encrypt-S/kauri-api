@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Encrypt-S/navpi-go/app/middleware"
+	"github.com/Encrypt-S/kauri-api/app/middleware"
 	"github.com/gorilla/mux"
 )
 
