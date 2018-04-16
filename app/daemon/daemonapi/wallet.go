@@ -7,9 +7,9 @@ import (
 
 	"encoding/json"
 
-	"github.com/Encrypt-S/navpi-go/app/api"
-	"github.com/Encrypt-S/navpi-go/app/conf"
-	"github.com/Encrypt-S/navpi-go/app/daemon/daemonrpc"
+	"github.com/Encrypt-S/kauri-api/app/api"
+	"github.com/Encrypt-S/kauri-api/app/conf"
+	"github.com/Encrypt-S/kauri-api/app/daemon/daemonrpc"
 	"github.com/gorilla/mux"
 	"github.com/muesli/crunchy"
 )
