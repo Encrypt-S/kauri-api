@@ -14,9 +14,9 @@ import (
 
 	"fmt"
 
-	"github.com/Encrypt-S/navpi-go/app/conf"
-	"github.com/Encrypt-S/navpi-go/app/daemon/daemonrpc"
-	"github.com/Encrypt-S/navpi-go/app/fs"
+	"github.com/Encrypt-S/kauri-api/app/conf"
+	"github.com/Encrypt-S/kauri-api/app/daemon/daemonrpc"
+	"github.com/Encrypt-S/kauri-api/app/fs"
 )
 
 const (
@@ -109,49 +109,49 @@ var isGettingDaemon = false
 
 // StartManager is a simple system that checks if
 // the daemon is alive. If not it tries to start it
-func StartManager() {
-
-	// set the heartbeat interval but make sure it is not
-	// less than the min heartbeat setting
-	hbInterval := minHeartbeat
-	if conf.ServerConf.DaemonHeartbeat > hbInterval {
-		hbInterval = conf.ServerConf.DaemonHeartbeat
-	}
-
-	ticker := time.NewTicker(time.Duration(hbInterval) * time.Millisecond)
-	go func() {
-		for range ticker.C {
-
-			//log.Println(t)
-
-			// check to see if the daemon is alive
-			if isAlive() {
-				//log.Println("NAVCoin daemon is alive!")
-			} else {
-
-				// only do thing if we are already not getting the daemon
-				if !isGettingDaemon {
-					log.Println("NAVCoin daemon is unresponsive...")
-
-					if runningDaemon != nil {
-						Stop(runningDaemon)
-					}
-
-					// start the daemon and download it if necessary
-					cmd, err := DownloadAndStart(conf.ServerConf, conf.AppConf)
-
-					if err != nil {
-						log.Println(err)
-					} else {
-						runningDaemon = cmd
-					}
-				}
-
-			}
-
-		}
-	}()
-}
+//func StartManager() {
+//
+//	// set the heartbeat interval but make sure it is not
+//	// less than the min heartbeat setting
+//	hbInterval := minHeartbeat
+//	if conf.ServerConf.DaemonHeartbeat > hbInterval {
+//		hbInterval = conf.ServerConf.DaemonHeartbeat
+//	}
+//
+//	ticker := time.NewTicker(time.Duration(hbInterval) * time.Millisecond)
+//	go func() {
+//		for range ticker.C {
+//
+//			//log.Println(t)
+//
+//			// check to see if the daemon is alive
+//			if isAlive() {
+//				//log.Println("NAVCoin daemon is alive!")
+//			} else {
+//
+//				// only do thing if we are already not getting the daemon
+//				if !isGettingDaemon {
+//					log.Println("NAVCoin daemon is unresponsive...")
+//
+//					if runningDaemon != nil {
+//						Stop(runningDaemon)
+//					}
+//
+//					// start the daemon and download it if necessary
+//					cmd, err := DownloadAndStart(conf.ServerConf, conf.AppConf)
+//
+//					if err != nil {
+//						log.Println(err)
+//					} else {
+//						runningDaemon = cmd
+//					}
+//				}
+//
+//			}
+//
+//		}
+//	}()
+//}
 
 // isAlive performs a simple rpc command to the Daemon
 // returns false on error
