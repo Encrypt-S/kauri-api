@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/Encrypt-S/navpi-go/app/api"
+	"github.com/Encrypt-S/kauri-api/app/api"
 	"github.com/appleboy/gofight"
 	"github.com/stretchr/testify/assert"
 )
