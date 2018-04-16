@@ -16,12 +16,12 @@ type AppConfig struct {
 	RunningNavVersion string   `json:"runningNavVersion"`
 	AllowedIps        []string `json:"allowedIps"`
 	UIPassword        string   `json:"uiPassword"`
-	Coins			  []Coins 	`json:"coins"`
+	Coins             []Coins  `json:"coins"`
 }
 
 type Coins struct {
-	DaemonVersion	string `json:"daemonVersion"`
-	CurrencyCode	string `json:"currencyCode"`
+	DaemonVersion    string `json:"daemonVersion"`
+	CurrencyCode     string `json:"currencyCode"`
 	LatestReleaseAPI string `json:"latestReleaseApi"`
 	ReleaseAPI       string `json:"ReleaseApi"`
 }
