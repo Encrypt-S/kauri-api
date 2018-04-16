@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Encrypt-S/navpi-go/app/conf"
+	"github.com/Encrypt-S/kauri-api/app/conf"
 	"github.com/dgrijalva/jwt-go"
 )
 
