@@ -1,9 +1,10 @@
 package api
 
 import (
-	"github.com/gorilla/mux"
 	"net/http"
-	"github.com/Encrypt-S/navpi-go/app/conf"
+
+	"github.com/Encrypt-S/kauri-api/app/conf"
+	"github.com/gorilla/mux"
 )
 
 // InitMetaHandlers starts the meta api handlers
@@ -17,7 +18,6 @@ func InitMetaHandlers(r *mux.Router, prefix string) {
 	OpenRouteHandler(metaCoinPath, r, coinMetaHandler())
 
 }
-
 
 // metaErrorDisplayHandler displays all the application errors to frontend
 func coinMetaHandler() http.Handler {
