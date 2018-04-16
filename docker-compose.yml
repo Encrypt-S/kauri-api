@@ -3,4 +3,4 @@ version: '2'
 services:
   man:
     build: .
-    image: navpi-go
+    image: kauri-api

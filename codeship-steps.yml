@@ -1,7 +1,7 @@
 - type: parallel
-  name: test_navpi
+  name: test_kauri_api
   steps:
-    - service: navpi-go
+    - service: kauri-api
       command: go test ./...
 
 
