@@ -8,16 +8,14 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/Encrypt-S/navpi-go/app/api"
-	"github.com/Encrypt-S/navpi-go/app/conf"
+	"github.com/Encrypt-S/kauri-api/app/api"
+	"github.com/Encrypt-S/kauri-api/app/conf"
 	"github.com/gorilla/mux"
 )
 
 func main() {
 
 	initMain()
-
-
 
 	// log out server runtime OS and Architecture
 	log.Println(fmt.Sprintf("Server running in %s:%s", runtime.GOOS, runtime.GOARCH))
@@ -45,28 +43,27 @@ func main() {
 	api.InitMetaHandlers(router, "api")
 
 	/*
+		// check to see if we have a defined running config
+		// If not we are only going to boot the setup apis, otherwise we will start the app
+		if conf.AppConf.RunningNavVersion == "" {
 
-	// check to see if we have a defined running config
-	// If not we are only going to boot the setup apis, otherwise we will start the app
-	if conf.AppConf.RunningNavVersion == "" {
+			log.Println("No App Config starting the setup api")
+			setupapi.InitSetupHandlers(router, "api")
 
-		log.Println("No App Config starting the setup api")
-		setupapi.InitSetupHandlers(router, "api")
+		} else {
 
-	} else {
+			log.Println("App config found :: booting all apis!")
+			// we have a user config so start the app in running mode
+			// TODO: make dependent on the dev config
+			daemon.StartManager()
 
-		log.Println("App config found :: booting all apis!")
-		// we have a user config so start the app in running mode
-		// TODO: make dependent on the dev config
-		daemon.StartManager()
+			// stat all app API's
+			managerapi.InitManagerhandlers(router, "api")
+			daemonapi.InitChainHandlers(router, "api")
+			daemonapi.InitWalletHandlers(router, "api")
+			user.InitSetupHandlers(router, "api")
 
-		// stat all app API's
-		managerapi.InitManagerhandlers(router, "api")
-		daemonapi.InitChainHandlers(router, "api")
-		daemonapi.InitWalletHandlers(router, "api")
-		user.InitSetupHandlers(router, "api")
-
-	}
+		}
 	*/
 
 	// Start http server
