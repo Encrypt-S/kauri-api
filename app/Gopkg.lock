@@ -64,7 +64,7 @@
     "json/scanner",
     "json/token"
   ]
-  revision = "f40e974e75af4e271d97ce0fc917af5898ae7bda"
+  revision = "ef8a98b0bbce4a65b5aa4c368430a80ddc533168"
 
 [[projects]]
   name = "github.com/magiconair/properties"
@@ -120,8 +120,8 @@
 [[projects]]
   name = "github.com/spf13/pflag"
   packages = ["."]
-  revision = "e57e3eeb33f795204c1ca35f56c44f83227c6e66"
-  version = "v1.0.0"
+  revision = "583c0c0531f06d5278b7d917446061adc344b5cd"
+  version = "v1.0.1"
 
 [[projects]]
   name = "github.com/spf13/viper"
@@ -149,7 +149,7 @@
     "blowfish",
     "ssh/terminal"
   ]
-  revision = "12892e8c234f4fe6f6803f052061de9057903bb2"
+  revision = "d6449816ce06963d9d136eee5a56fca5b0616e7e"
 
 [[projects]]
   branch = "master"
@@ -158,7 +158,7 @@
     "unix",
     "windows"
   ]
-  revision = "378d26f46672a356c46195c28f61bdb4c0a781dd"
+  revision = "2281fa97ef7b0c26324634d5a22f04babdac8713"
 
 [[projects]]
   name = "golang.org/x/text"
