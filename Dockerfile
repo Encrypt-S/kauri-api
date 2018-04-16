@@ -10,7 +10,7 @@ WORKDIR /go/src/github.com/Encrypt-S/kauri-api/app
 RUN go get ./
 
 # Install test dependencies
-# RUN go get -t -v ./...
+RUN go get -t ./...
 
 ## Build
 #RUN go build
