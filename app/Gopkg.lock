@@ -2,6 +2,18 @@
 
 
 [[projects]]
+  branch = "v2.0.0-kowhai"
+  name = "github.com/Encrypt-S/navpi-go"
+  packages = [
+    "app/api",
+    "app/conf",
+    "app/daemon/daemonrpc",
+    "app/middleware",
+    "app/utils"
+  ]
+  revision = "1b3070eeecb5569a67fab6c82385be73a53bbd5e"
+
+[[projects]]
   name = "github.com/Sirupsen/logrus"
   packages = ["."]
   revision = "c155da19408a8799da419ed3eeb0cb5db0ad5dbc"
@@ -182,6 +194,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "aec68b15c30b403fdd05a273c4f6c481ff07d69b043977be75f09c53ca972a99"
+  inputs-digest = "d6f74d9a46e16389c4e75dda8b8512fb2ac08dd2cdc8da2a72acac9d878a1f85"
   solver-name = "gps-cdcl"
   solver-version = 1
