@@ -17,7 +17,7 @@ import (
 // InitWalletHandlers sets up handlers for the blockchain rpc interface
 func InitWalletHandlers(r *mux.Router, prefix string) {
 
-	namespace := "wallet"
+	//namespace := "wallet"
 
 	// setup getstakereport
 	//stakeReportPath := api.RouteBuilder(prefix, namespace, "v1", "stakeReport")
