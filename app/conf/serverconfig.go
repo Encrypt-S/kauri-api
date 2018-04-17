@@ -1,7 +1,6 @@
 package conf
 
 import (
-	"github.com/Encrypt-S/kauri-api/app/utils"
 	"github.com/spf13/viper"
 )
 
@@ -58,8 +57,4 @@ func parseServerConfig(serverconf ServerConfig) ServerConfig {
 
 	return serverconf
 
-}
-
-func GenerateJWTSecret() {
-	ServerConf.JWTSecret, _ = utils.GenerateRandomString(32)
 }
