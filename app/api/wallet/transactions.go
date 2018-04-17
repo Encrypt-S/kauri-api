@@ -1,9 +1,7 @@
 package wallet
 
 import (
-	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 
 	"github.com/Encrypt-S/navpi-go/app/api"
@@ -11,6 +9,8 @@ import (
 	"github.com/Encrypt-S/navpi-go/app/daemon/daemonrpc"
 	"github.com/Encrypt-S/navpi-go/app/middleware"
 	"github.com/gorilla/mux"
+	"encoding/json"
+	"fmt"
 )
 
 // InitTransactionHandlers sets up handlers for transaction-related rpc commands
@@ -26,14 +26,34 @@ func InitTransactionHandlers(r *mux.Router, prefix string) {
 
 }
 
-// getAddressTxIds - returns the txids for an address(es) (requires addressindex to be enabled).
+// GetAddressTxIdsCmd defines the "getaddresstxids" JSON-RPC command.
+type GetAddressTxIdsCmd struct {
+	addresses string `json:"addresses"`
+}
+
+// getAddressTxIds - executes "getaddresstxids" JSON-RPC command
+// arguments - addresses array, start block height, end block height
+// returns the txids for an address(es) (requires addressindex to be enabled).
 func getAddressTxIds() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		log.Println("getAddressTxIds")
+		var getAddressTxIdsCmd GetAddressTxIdsCmd
+		apiResp := api.Response{}
+
+		err := json.NewDecoder(r.Body).Decode(&getAddressTxIdsCmd)
+
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			returnErr := api.AppRespErrors.ServerError
+			returnErr.ErrorMessage = fmt.Sprintf("Server error: %v", err)
+			apiResp.Errors = append(apiResp.Errors, returnErr)
+			apiResp.Send(w)
+			return
+		}
 
 		n := daemonrpc.RpcRequestData{}
 		n.Method = "getaddresstxids"
+		n.Params = []string{getAddressTxIdsCmd.addresses}
 
 		resp, err := daemonrpc.RequestDaemon(n, conf.NavConf)
 
@@ -45,6 +65,6 @@ func getAddressTxIds() http.Handler {
 		bodyText, err := ioutil.ReadAll(resp.Body)
 		w.WriteHeader(resp.StatusCode)
 		w.Write(bodyText)
-		io.WriteString(w, "hello world\n")
+
 	})
 }
