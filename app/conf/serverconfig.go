@@ -16,8 +16,6 @@ type ServerConfig struct {
 	LivePort   int64
 	TestPort   int64
 	UseTestnet bool
-
-	JWTSecret string // this is self generated on each start
 }
 
 // LoadServerConfig sets up viper, reads and parses server config
