@@ -17,15 +17,15 @@ import (
 // InitWalletHandlers sets up handlers for the blockchain rpc interface
 func InitWalletHandlers(r *mux.Router, prefix string) {
 
-	namespace := "wallet"
+	//namespace := "wallet"
 
 	// setup getstakereport
-	stakeReportPath := api.RouteBuilder(prefix, namespace, "v1", "stakeReport")
-	api.ProtectedRouteHandler(stakeReportPath, r, stakeReport(), http.MethodGet)
+	//stakeReportPath := api.RouteBuilder(prefix, namespace, "v1", "stakeReport")
+	//api.ProtectedRouteHandler(stakeReportPath, r, stakeReport(), http.MethodGet)
 
 	// setup encryptwallet
-	encryptWalletPath := api.RouteBuilder(prefix, namespace, "v1", "encryptwallet")
-	api.ProtectedRouteHandler(encryptWalletPath, r, encryptWallet(), http.MethodPost)
+	//encryptWalletPath := api.RouteBuilder(prefix, namespace, "v1", "encryptwallet")
+	//api.ProtectedRouteHandler(encryptWalletPath, r, encryptWallet(), http.MethodPost)
 
 }
 

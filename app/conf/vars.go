@@ -10,7 +10,7 @@ var AppConf AppConfig
 // NavConf holds the rpc config
 // RPCUser     string `json:"rpcUser"`
 // RPCPassword string `json:"rpcPassword"`
-var NavConf NavConfig
+var NavConf DaemonConfig
 
 // ServerConf holds the server config
 // ManagerAPIPort   int64
