@@ -76,6 +76,6 @@ func initMain() {
 
 	api.BuildAppErrors()
 	conf.CreateRPCDetails()
-	conf.GenerateJWTSecret()
+
 
 }

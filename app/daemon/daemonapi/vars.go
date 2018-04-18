@@ -2,7 +2,7 @@ package daemonapi
 
 import "github.com/Encrypt-S/kauri-api/app/conf"
 
-// NavConfig holds pointer to NavConfig
+// DaemonConfig holds pointer to DaemonConfig
 // RPCUser     string `json:"rpcUser"`
 // RPCPassword string `json:"rpcPassword"`
-var NavConfig *conf.NavConfig
+var NavConfig *conf.DaemonConfig

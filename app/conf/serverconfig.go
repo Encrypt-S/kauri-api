@@ -1,7 +1,6 @@
 package conf
 
 import (
-	"github.com/Encrypt-S/kauri-api/app/utils"
 	"github.com/spf13/viper"
 )
 
@@ -17,8 +16,6 @@ type ServerConfig struct {
 	LivePort   int64
 	TestPort   int64
 	UseTestnet bool
-
-	JWTSecret string // this is self generated on each start
 }
 
 // LoadServerConfig sets up viper, reads and parses server config
@@ -58,8 +55,4 @@ func parseServerConfig(serverconf ServerConfig) ServerConfig {
 
 	return serverconf
 
-}
-
-func GenerateJWTSecret() {
-	ServerConf.JWTSecret, _ = utils.GenerateRandomString(32)
 }

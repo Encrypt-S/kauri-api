@@ -69,9 +69,9 @@ func OpenRouteHandler(path string, r *mux.Router, f http.Handler) {
 	r.Handle(path, middleware.Adapt(f, middleware.CORSHandler()))
 }
 
-func ProtectedRouteHandler(path string, r *mux.Router, f http.Handler, method string) {
-	r.Handle(path, middleware.Adapt(f,
-		middleware.CORSHandler(),
-		middleware.JwtHandler())).
-		Methods(method)
-}
+//func ProtectedRouteHandler(path string, r *mux.Router, f http.Handler, method string) {
+//	r.Handle(path, middleware.Adapt(f,
+//		middleware.CORSHandler(),
+//		middleware.JwtHandler())).
+//		Methods(method)
+//}
