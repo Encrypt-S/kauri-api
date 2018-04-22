@@ -7,7 +7,6 @@ import (
 	"github.com/Encrypt-S/navpi-go/app/api"
 	"github.com/Encrypt-S/navpi-go/app/conf"
 	"github.com/Encrypt-S/navpi-go/app/daemon/daemonrpc"
-	"github.com/Encrypt-S/navpi-go/app/middleware"
 	"github.com/gorilla/mux"
 	"encoding/json"
 	"fmt"
@@ -19,16 +18,34 @@ func InitTransactionHandlers(r *mux.Router, prefix string) {
 	namespace := "transactions"
 
 	getAddressTxIdsPath := api.RouteBuilder(prefix, namespace, "v1", "getaddresstxids")
-	api.ProtectedRouteHandler(getAddressTxIdsPath, r, getAddressTxIds(), http.MethodPost)
-
-	r.Handle(getAddressTxIdsPath, middleware.Adapt(getAddressTxIds(),
-		middleware.JwtHandler())).Methods("GET")
+	api.OpenRouteHandler(getAddressTxIdsPath, r, getAddressTxIds())
 
 }
 
+// format of transactions json payload from incoming POST
+//{"transactions": [
+//{"currency":  "NAV", "address": "Nkjhsdfkjh834jdu"},
+//{"currency":  "NAV", "address": "Nkjhsdfkjh834jdu"},
+//{"currency":  "BTC", "address": "1kjhsdfkjh834jdu"},
+//{"currency":  "BTC", "address": "Nkjhsdfkjh834jdu"}
+//]}
+
 // GetAddressTxIdsCmd defines the "getaddresstxids" JSON-RPC command.
 type GetAddressTxIdsCmd struct {
-	addresses string `json:"addresses"`
+	addresses []string `json:"addresses"`
+}
+
+// TODO: Decode top level transactions JSON array into a slice of structs
+
+// first decode transactions json into a GetAddressTxIdsArray : Transactions slice
+type GetAddressTxIdsArray struct {
+	Transactions []GetAddressTxIdsJson `json:"array"`
+}
+
+// then iterate over the Transactions slice to get each GetAddressTxIdsJson
+type GetAddressTxIdsJson struct {
+	Currency   string  `json:"currency"`
+	Address 	 string  `json:"address"`
 }
 
 // getAddressTxIds - executes "getaddresstxids" JSON-RPC command
@@ -51,9 +68,11 @@ func getAddressTxIds() http.Handler {
 			return
 		}
 
+		//addresses := []string{getAddressTxIdsCmd.addresses}
+
 		n := daemonrpc.RpcRequestData{}
 		n.Method = "getaddresstxids"
-		n.Params = []string{getAddressTxIdsCmd.addresses}
+		n.Params = addresses;
 
 		resp, err := daemonrpc.RequestDaemon(n, conf.NavConf)
 
