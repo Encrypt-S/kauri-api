@@ -4,12 +4,13 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"encoding/json"
+	"fmt"
+
 	"github.com/Encrypt-S/navpi-go/app/api"
 	"github.com/Encrypt-S/navpi-go/app/conf"
 	"github.com/Encrypt-S/navpi-go/app/daemon/daemonrpc"
 	"github.com/gorilla/mux"
-	"encoding/json"
-	"fmt"
 )
 
 // InitTransactionHandlers sets up handlers for transaction-related rpc commands
@@ -32,20 +33,18 @@ func InitTransactionHandlers(r *mux.Router, prefix string) {
 
 // TODO: Decode top level transactions JSON array into a slice of structs
 
-// first decode transactions json into a GetAddressTxIdsArray : Transactions slice
+// GetAddressTxIdsArray first decode transactions json into Transactions slice
 type GetAddressTxIdsArray struct {
-	Transactions []GetAddressTxIdsJson `json:"array"`
+	Transactions []GetAddressTxIdsJSON `json:"array"`
 }
 
-// then iterate over the Transactions slice to get each GetAddressTxIdsJson
-type GetAddressTxIdsJson struct {
-	Currency   string  `json:"currency"`
-	Address 	 string  `json:"address"`
+// GetAddressTxIdsJSON represents the keys Transactions slice
+type GetAddressTxIdsJSON struct {
+	Currency string `json:"currency"`
+	Address  string `json:"address"`
 }
 
 // getAddressTxIds - executes "getaddresstxids" JSON-RPC command
-// arguments - addresses array, start block height, end block height
-// returns the txids for an address(es) (requires addressindex to be enabled).
 func getAddressTxIds() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
@@ -65,7 +64,7 @@ func getAddressTxIds() http.Handler {
 
 		n := daemonrpc.RpcRequestData{}
 		n.Method = "getaddresstxids"
-		n.Params = getAddressTxIds.Transactions;
+		n.Params = getAddressTxIds.Transactions
 
 		resp, err := daemonrpc.RequestDaemon(n, conf.NavConf)
 
