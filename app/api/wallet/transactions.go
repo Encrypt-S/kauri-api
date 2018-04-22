@@ -1,15 +1,12 @@
 package wallet
 
 import (
-	"io/ioutil"
 	"net/http"
 
 	"encoding/json"
 	"fmt"
 
 	"github.com/Encrypt-S/navpi-go/app/api"
-	"github.com/Encrypt-S/navpi-go/app/conf"
-	"github.com/Encrypt-S/navpi-go/app/daemon/daemonrpc"
 	"github.com/gorilla/mux"
 )
 
@@ -23,25 +20,21 @@ func InitTransactionHandlers(r *mux.Router, prefix string) {
 
 }
 
-// format of transactions json payload from incoming POST
+// structure of POST body to API
 //{"transactions": [
-//{"currency":  "NAV", "address": "Nkjhsdfkjh834jdu"},
-//{"currency":  "NAV", "address": "Nkjhsdfkjh834jdu"},
-//{"currency":  "BTC", "address": "1kjhsdfkjh834jdu"},
-//{"currency":  "BTC", "address": "Nkjhsdfkjh834jdu"}
+//{"currency":  "NAV", "addresses": ["Nkjhsdfkjh834jdu", "Nisd8a8BAhahs"]},
+//{"currency":  "BTC",  "addresses": ["Bak7ahbZAA", "B91janABsa"]}
 //]}
-
-// TODO: Decode top level transactions JSON array into a slice of structs
 
 // GetAddressTxIdsArray first decode transactions json into Transactions slice
 type GetAddressTxIdsArray struct {
-	Transactions []GetAddressTxIdsJSON `json:"array"`
+	Transactions []GetAddressTxIdsJSON `json:"transactions"`
 }
 
 // GetAddressTxIdsJSON represents the keys Transactions slice
 type GetAddressTxIdsJSON struct {
 	Currency string `json:"currency"`
-	Address  string `json:"address"`
+	Addresses  []string `json:"addresses"`
 }
 
 // getAddressTxIds - executes "getaddresstxids" JSON-RPC command
@@ -62,20 +55,28 @@ func getAddressTxIds() http.Handler {
 			return
 		}
 
-		n := daemonrpc.RpcRequestData{}
-		n.Method = "getaddresstxids"
-		n.Params = getAddressTxIds.Transactions
+		// TODO: create new function to loop over addresses array for each currency
 
-		resp, err := daemonrpc.RequestDaemon(n, conf.NavConf)
+		// then get transactions for each
+		//n := daemonrpc.RpcRequestData{}
+		//n.Method = "getaddresstxids"
+		//n.Params = getAddressTxIds.Transactions
 
-		if err != nil { // Handle errors requesting the daemon
-			daemonrpc.RpcFailed(err, w, r)
-			return
-		}
+		//resp, err := daemonrpc.RequestDaemon(n, conf.NavConf)
 
-		bodyText, err := ioutil.ReadAll(resp.Body)
-		w.WriteHeader(resp.StatusCode)
-		w.Write(bodyText)
+		//if err != nil { // Handle errors requesting the daemon
+		//	daemonrpc.RpcFailed(err, w, r)
+		//	return
+		//}
+
+		// then reassemble data
+		// then return formatted response
+
+		//bodyText, err := ioutil.ReadAll(resp.Body)
+		//w.WriteHeader(resp.StatusCode)
+		//w.Write(bodyText)
+
+		// write test
 
 	})
 }
