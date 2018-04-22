@@ -30,11 +30,6 @@ func InitTransactionHandlers(r *mux.Router, prefix string) {
 //{"currency":  "BTC", "address": "Nkjhsdfkjh834jdu"}
 //]}
 
-// GetAddressTxIdsCmd defines the "getaddresstxids" JSON-RPC command.
-type GetAddressTxIdsCmd struct {
-	addresses []string `json:"addresses"`
-}
-
 // TODO: Decode top level transactions JSON array into a slice of structs
 
 // first decode transactions json into a GetAddressTxIdsArray : Transactions slice
@@ -54,10 +49,10 @@ type GetAddressTxIdsJson struct {
 func getAddressTxIds() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		var getAddressTxIdsCmd GetAddressTxIdsCmd
+		var getAddressTxIds GetAddressTxIdsArray
 		apiResp := api.Response{}
 
-		err := json.NewDecoder(r.Body).Decode(&getAddressTxIdsCmd)
+		err := json.NewDecoder(r.Body).Decode(&getAddressTxIds)
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -68,11 +63,9 @@ func getAddressTxIds() http.Handler {
 			return
 		}
 
-		//addresses := []string{getAddressTxIdsCmd.addresses}
-
 		n := daemonrpc.RpcRequestData{}
 		n.Method = "getaddresstxids"
-		n.Params = addresses;
+		n.Params = getAddressTxIds.Transactions;
 
 		resp, err := daemonrpc.RequestDaemon(n, conf.NavConf)
 
