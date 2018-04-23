@@ -7,7 +7,6 @@
   packages = [
     "app/api",
     "app/conf",
-    "app/daemon/daemonrpc",
     "app/middleware",
     "app/utils"
   ]
@@ -194,6 +193,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8316eeec0657a68ff5c32c3a0f3d73986ae48bf3b2fa0215ac35276e641bd7f2"
+  inputs-digest = "f9565d050ca96df9b78cdb7c6689481c38f939d0818cc092d2b64c9aa394a95c"
   solver-name = "gps-cdcl"
   solver-version = 1

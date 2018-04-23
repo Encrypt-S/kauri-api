@@ -55,7 +55,19 @@ func getAddressTxIds() http.Handler {
 			return
 		}
 
-		// TODO: create new function to loop over addresses array for each currency
+		// range over the Transactions slice
+		//for _, tx := range getAddressTxIds.Transactions {
+		//	if tx.Currency.contains("NAV") {
+		//		fmt.Printf("NAV Addresses: %s", tx.Addresses)
+		//	}
+		//}
+
+		// call rpc commands for each address found
+
+		// for example...
+		// getaddresstxids '{"addresses": ["NUDke42E3fwLqaBbBFRyVSTETuhWAi7ugk"]}'
+
+		// store return value in an array
 
 		// then get transactions for each
 		//n := daemonrpc.RpcRequestData{}
