@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/Encrypt-S/kauri-api/app/api"
+	"log"
 )
 
 // InitTransactionHandlers sets up handlers for transaction-related rpc commands
@@ -56,9 +57,10 @@ func getAddressTxIds() http.Handler {
 		}
 
 		// range over the Transactions slice
+
 		for _, tx := range getAddressTxIds.Transactions {
 			if tx.Currency == "NAV" {
-				fmt.Printf("NAV Addresses: %s", tx.Addresses)
+				getNavTransactionIds(tx.Addresses)
 			}
 		}
 
@@ -91,4 +93,16 @@ func getAddressTxIds() http.Handler {
 		// write test
 
 	})
+}
+
+
+func getNavTransactionIds(addresses []string) {
+
+	// loop through all the addresses
+	for _, add := range addresses {
+
+		// print each address out
+		log.Println(add)
+	}
+
 }
