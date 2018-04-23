@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/Encrypt-S/navpi-go/app/api"
 	"github.com/gorilla/mux"
+	"github.com/Encrypt-S/kauri-api/app/api"
 )
 
 // InitTransactionHandlers sets up handlers for transaction-related rpc commands
@@ -56,11 +56,11 @@ func getAddressTxIds() http.Handler {
 		}
 
 		// range over the Transactions slice
-		//for _, tx := range getAddressTxIds.Transactions {
-		//	if tx.Currency.contains("NAV") {
-		//		fmt.Printf("NAV Addresses: %s", tx.Addresses)
-		//	}
-		//}
+		for _, tx := range getAddressTxIds.Transactions {
+			if tx.Currency == "NAV" {
+				fmt.Printf("NAV Addresses: %s", tx.Addresses)
+			}
+		}
 
 		// call rpc commands for each address found
 
