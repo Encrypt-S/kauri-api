@@ -6,9 +6,12 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/gorilla/mux"
-	"github.com/Encrypt-S/kauri-api/app/api"
 	"log"
+
+	"github.com/Encrypt-S/kauri-api/app/api"
+	"github.com/gorilla/mux"
+	"github.com/Encrypt-S/kauri-api/app/daemon/daemonrpc"
+	"github.com/Encrypt-S/kauri-api/app/conf"
 )
 
 // InitTransactionHandlers sets up handlers for transaction-related rpc commands
@@ -16,33 +19,38 @@ func InitTransactionHandlers(r *mux.Router, prefix string) {
 
 	namespace := "transactions"
 
+	// setup endpoint to be used for receiving txids for supplied addresses
 	getAddressTxIdsPath := api.RouteBuilder(prefix, namespace, "v1", "getaddresstxids")
 	api.OpenRouteHandler(getAddressTxIdsPath, r, getAddressTxIds())
 
 }
 
-// structure of POST body to API
-//{"transactions": [
-//{"currency":  "NAV", "addresses": ["Nkjhsdfkjh834jdu", "Nisd8a8BAhahs"]},
-//{"currency":  "BTC",  "addresses": ["Bak7ahbZAA", "B91janABsa"]}
-//]}
-
-// GetAddressTxIdsArray first decode transactions json into Transactions slice
-type GetAddressTxIdsArray struct {
-	Transactions []GetAddressTxIdsJSON `json:"transactions"`
+// TransactionsArrayStruct describes the Transactions array
+type TransactionsArrayStruct struct {
+	Transactions []TransactionsStruct `json:"transactions"`
 }
 
-// GetAddressTxIdsJSON represents the keys Transactions slice
-type GetAddressTxIdsJSON struct {
-	Currency string `json:"currency"`
-	Addresses  []string `json:"addresses"`
+// TransactionsStruct describes the keys in Transactions array
+type TransactionsStruct struct {
+	Currency       string   `json:"currency"`
+	Addresses      []string `json:"addresses"`
 }
 
-// getAddressTxIds - executes "getaddresstxids" JSON-RPC command
+type TransactionResponseStruct struct {
+	Transactions []ParsedTransactionDataStruct `json:"transactions"`
+}
+
+type ParsedTransactionDataStruct struct {
+	Currency     string        `json:"currency"`
+	Address      string        `json:"address"`
+	Transactions []interface{} `json:"transactions"`
+}
+
+// getAddressTxIds - ranges through transactions, returns raw transactions
 func getAddressTxIds() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		var getAddressTxIds GetAddressTxIdsArray
+		var getAddressTxIds TransactionsArrayStruct
 		apiResp := api.Response{}
 
 		err := json.NewDecoder(r.Body).Decode(&getAddressTxIds)
@@ -57,52 +65,69 @@ func getAddressTxIds() http.Handler {
 		}
 
 		// range over the Transactions slice
-
 		for _, tx := range getAddressTxIds.Transactions {
+			// isolate NAV addresses
 			if tx.Currency == "NAV" {
-				getNavTransactionIds(tx.Addresses)
+				getNavTxIds(tx.Addresses)
 			}
 		}
-
-		// call rpc commands for each address found
-
-		// for example...
-		// getaddresstxids '{"addresses": ["NUDke42E3fwLqaBbBFRyVSTETuhWAi7ugk"]}'
-
-		// store return value in an array
-
-		// then get transactions for each
-		//n := daemonrpc.RpcRequestData{}
-		//n.Method = "getaddresstxids"
-		//n.Params = getAddressTxIds.Transactions
-
-		//resp, err := daemonrpc.RequestDaemon(n, conf.NavConf)
-
-		//if err != nil { // Handle errors requesting the daemon
-		//	daemonrpc.RpcFailed(err, w, r)
-		//	return
-		//}
-
-		// then reassemble data
-		// then return formatted response
-
-		//bodyText, err := ioutil.ReadAll(resp.Body)
-		//w.WriteHeader(resp.StatusCode)
-		//w.Write(bodyText)
-
-		// write test
 
 	})
 }
 
+type ParsedAddresses struct {
+	Address string
+	TxIds []string
+}
 
-func getNavTransactionIds(addresses []string) {
+type TxLookups struct {
+	TxIdsToLookup []ParsedAddresses
+}
 
-	// loop through all the addresses
+
+type rpcGetaddressTxIds struct {
+	Addresses []string `json:"addresses"`
+}
+
+func getNavTxIds(addresses []string) {
+
+	// loop through all the NAV addresses
 	for _, add := range addresses {
 
-		// print each address out
-		log.Println(add)
+		// add each address to
+		txId := ParsedAddresses{}
+		txId.Address = add
+
+		// bring in transactions struct
+		tx := TransactionsStruct{}
+
+		// add current address to addresses array
+		tx.Addresses = append(tx.Addresses, add)
+
+		// then get transactions for each
+		n := daemonrpc.RpcRequestData{}
+		n.Method = "getaddresstxids"
+		n.Params = []TransactionsStruct{tx}
+
+		// override credentials temporarily
+		conf.NavConf.RPCUser = "user"
+		conf.NavConf.RPCPassword = "hi"
+
+		// issue rpc call
+		resp, err := daemonrpc.RequestDaemon(n, conf.NavConf)
+
+		// handle errors
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		log.Println(resp)
+
+		// append to array
+
 	}
+
+	// return responseTx
 
 }
