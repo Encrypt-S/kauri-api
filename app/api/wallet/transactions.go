@@ -1,7 +1,6 @@
 package wallet
 
 import (
-	"log"
 	"net/http"
 
 	"encoding/json"
@@ -55,7 +54,11 @@ type RPCGetAddressTxIdsParams struct {
 // RPCGetAddressTxIdsResponse describes returned address and txids
 type RPCGetAddressTxIdsResponse struct {
 	Address string
-	TxIds   []string
+	TxIds   []string `json:"result"`
+}
+
+type RPCTxIdResponse struct {
+	Result []string `json:"result"`
 }
 
 // RPCTxIdsArray describes array of txids returned from rpc call
@@ -110,25 +113,38 @@ func getAddressTxIds() http.Handler {
 					n.Method = "getaddresstxids"
 					n.Params = []RPCGetAddressTxIdsParams{rpcGetParams}
 
-					// override credentials temporarily
-					//conf.NavConf.RPCUser = "user"
-					//conf.NavConf.RPCPassword = "hi"
-
 					// issue rpc call
-					resp, err := daemonrpc.RequestDaemon(n, conf.NavConf)
+					resp, rpcErr := daemonrpc.RequestDaemon(n, conf.NavConf)
 
 					// handle errors
-					if err != nil {
-						daemonrpc.RpcFailed(err, w, r)
+					if rpcErr != nil {
+						daemonrpc.RpcFailed(rpcErr, w, r)
 						return
 					}
 
-					log.Println(resp)
+					txresp := RPCTxIdResponse{}
 
-					// returnedAddresses := RPCGetAddressTxIdsResponse{}
+					// get the json from the response Body
+					jsonErr := json.NewDecoder(resp.Body).Decode(&txresp)
 
-					// append response (array of txids) to TxIds array in returned address struct
-					// returnedAddresses.TxIds = append(returnedAddresses.TxIds, resp)
+					// handle error
+					if jsonErr != nil {
+						w.WriteHeader(http.StatusInternalServerError)
+						returnErr := api.AppRespErrors.ServerError
+						returnErr.ErrorMessage = fmt.Sprintf("Server error: %v", jsonErr)
+						apiResp.Errors = append(apiResp.Errors, returnErr)
+						apiResp.Send(w)
+						return
+					}
+
+					// now just need to put the txresp into struct for return
+
+					//json.Marshal(txresp)
+
+					//returnedAddresses := RPCGetAddressTxIdsResponse{}
+
+					//append response (array of txids) to TxIds array in returned address struct
+					//returnedAddresses.TxIds = append(returnedAddresses.TxIds, txresp)
 				}
 
 			}
