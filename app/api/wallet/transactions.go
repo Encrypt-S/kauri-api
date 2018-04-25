@@ -86,8 +86,6 @@ func getAddressTxIds() http.Handler {
 			return
 		}
 
-		returnedAddresses := RPCGetAddressTxIdsResponse{}
-
 		// range over the Transactions
 		for _, tx := range getAddressTxIds.Transactions {
 
@@ -127,17 +125,16 @@ func getAddressTxIds() http.Handler {
 
 					log.Println(resp)
 
+					// returnedAddresses := RPCGetAddressTxIdsResponse{}
+
 					// append response (array of txids) to TxIds array in returned address struct
-					returnedAddresses.TxIds = append(returnedAddresses.TxIds, resp)
+					// returnedAddresses.TxIds = append(returnedAddresses.TxIds, resp)
 				}
 
 			}
 		}
 
-		txids := RPCTxIdsArray{}
-		txids.TxIds = returnedAddresses.TxIds
-
-		return txids
+		return
 
 	})
 }
