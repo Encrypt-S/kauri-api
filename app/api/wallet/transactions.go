@@ -39,46 +39,41 @@ type OutgoingTransactionsArray struct {
 	Transactions []OutgoingTransactions `json:"transactions"`
 }
 
-// OutgoingTransactions describes individual address contents
+// OutgoingTransactions describes the outgoing response
 type OutgoingTransactions struct {
-	Currency     string        `json:"currency"`
-	Address      string        `json:"address"`
-	Transactions []interface{} `json:"transactions"`
+	Currency          string   `json:"currency"`
+	OutgoingAddressObject []interface{} `json:"addressobject"`
 }
 
-// RPCGetAddressTxIdsParams describes params needed for getaddresstxids daemonrpc call
-type RPCGetAddressTxIdsParams struct {
+// OutgoingAddressObject contains address and array of txids
+type OutgoingAddressObject struct {
+	Address string `json:"address"`
+	OutgoingTxIdsArray []string `json:"txids"`
+}
+
+// OutgoingTxIdsArray describes the outgoing addresses array
+type OutgoingTxIdsArray struct {
+	TxIds []string `json:"txids"`
+}
+
+// GetAddressTxIdRPCParams describes addresses array params for getaddresstxids call
+type GetAddressTxIdRPCParams struct {
 	Addresses []string `json:"addresses"`
 }
 
-// RPCGetAddressTxIdsResponse describes returned address and txids
-type RPCGetAddressTxIdsResponse struct {
-	Address string
-	TxIds   []string `json:"result"`
-}
-
-type RPCTxIdResponse struct {
+// GetAddressTxIdRPCResponse contains RPC response
+type GetAddressTxIdRPCResponse struct {
 	Result []string `json:"result"`
-}
-
-// RPCTxIdsArray describes array of txids returned from rpc call
-type RPCTxIdsArray struct {
-	TxIds []string `json:"addresses"`
-}
-
-// RPCTxLookupArray describes the array of txids to lookup
-type RPCTxLookupArray struct {
-	TxIdsToLookup []RPCGetAddressTxIdsResponse
 }
 
 // getAddressTxIds - ranges through transactions, returns raw transactions
 func getAddressTxIds() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		var getAddressTxIds IncomingTransactionsArray
+		var incomingTxs IncomingTransactionsArray
 		apiResp := api.Response{}
 
-		err := json.NewDecoder(r.Body).Decode(&getAddressTxIds)
+		err := json.NewDecoder(r.Body).Decode(&incomingTxs)
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -89,45 +84,64 @@ func getAddressTxIds() http.Handler {
 			return
 		}
 
+		// start building outgoing transactions
+		outgoingTxs := OutgoingTransactions{}
+
+		// start building outgoing addresses array
+		outgoingAddressObject := OutgoingAddressObject{}
+
+		// start building outgoing txid array
+		//outgoingTxIds := OutgoingTxIdsArray{}
+
 		// range over the Transactions
-		for _, tx := range getAddressTxIds.Transactions {
+		for _, tx := range incomingTxs.Transactions {
 
 			// isolate NAV addresses
 			if tx.Currency == "NAV" {
 
+				// set currency for this iteration
+				outgoingTxs.Currency = "NAV"
+
 				// range over the NAV addresses
 				for _, address := range tx.Addresses {
 
-					// add each address to response data struct for future use
-					navData := RPCGetAddressTxIdsResponse{}
-					navData.Address = address
+					// add NAV address to address object
+					outgoingAddressObject.Address = address
+
+					// payload should contain array of address objects
+					// with array of transactions in each object
 
 					// bring in rpc get address txids struct to setup rpc params
-					rpcGetParams := RPCGetAddressTxIdsParams{}
+					// this is done each iteration to create fresh address params
+					// we only want to send one address in rpc call (this iteration)
+					getParams := GetAddressTxIdRPCParams{}
 
 					// add current address to addresses array for rpc params
-					rpcGetParams.Addresses = append(rpcGetParams.Addresses, address)
+					getParams.Addresses = append(getParams.Addresses, address)
 
-					// prepare rpc call, method and params (addresses array)
+					// prepare rpc call
 					n := daemonrpc.RpcRequestData{}
+					// set method
 					n.Method = "getaddresstxids"
-					n.Params = []RPCGetAddressTxIdsParams{rpcGetParams}
+					// set params
+					n.Params = []GetAddressTxIdRPCParams{getParams}
 
 					// issue rpc call
 					resp, rpcErr := daemonrpc.RequestDaemon(n, conf.NavConf)
 
-					// handle errors
+					// handle error with rpc call
 					if rpcErr != nil {
 						daemonrpc.RpcFailed(rpcErr, w, r)
 						return
 					}
 
-					txresp := RPCTxIdResponse{}
+					// handle the nav daemon response
+					txidResp := GetAddressTxIdRPCResponse{}
 
 					// get the json from the response Body
-					jsonErr := json.NewDecoder(resp.Body).Decode(&txresp)
+					jsonErr := json.NewDecoder(resp.Body).Decode(&txidResp)
 
-					// handle error
+					// handle error decoding json
 					if jsonErr != nil {
 						w.WriteHeader(http.StatusInternalServerError)
 						returnErr := api.AppRespErrors.ServerError
@@ -137,14 +151,11 @@ func getAddressTxIds() http.Handler {
 						return
 					}
 
-					// now just need to put the txresp into struct for return
+					//println(txidResp)
 
-					//json.Marshal(txresp)
+					// add the decoded txid response to the outgoing TxIds array
+					//outgoingTxIds.TxIds = append(outgoingTxIds.TxIds, txidResp)
 
-					//returnedAddresses := RPCGetAddressTxIdsResponse{}
-
-					//append response (array of txids) to TxIds array in returned address struct
-					//returnedAddresses.TxIds = append(returnedAddresses.TxIds, txresp)
 				}
 
 			}
