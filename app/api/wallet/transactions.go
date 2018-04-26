@@ -18,8 +18,12 @@ func InitTransactionHandlers(r *mux.Router, prefix string) {
 	namespace := "transactions"
 
 	// setup endpoint to be used for receiving txids for all supplied addresses
-	getTxIdsForAllAddressesPath := api.RouteBuilder(prefix, namespace, "v1", "getaddresstxids")
-	api.OpenRouteHandler(getTxIdsForAllAddressesPath, r, getTxIdsForAllAddresses())
+	getTxIdsPath := api.RouteBuilder(prefix, namespace, "v1", "getaddresstxids")
+	api.OpenRouteHandler(getTxIdsPath, r, getData("txids"))
+
+	// setup endpoint to be used for receiving raw transaction datat for all supplied addresses
+	getRawTransactionsPath := api.RouteBuilder(prefix, namespace, "v1", "getrawtransactions")
+	api.OpenRouteHandler(getRawTransactionsPath, r, getData("raw"))
 
 }
 
@@ -61,8 +65,8 @@ type RPCAddressTxIDResponse struct {
 	Result []string `json:"result"`
 }
 
-// getTxIdsForAllAddresses - ranges through transactions, returns txids for each address
-func getTxIdsForAllAddresses() http.Handler {
+// getData - ranges through transactions, returns txids or raw transactions
+func getData(command string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		apiResp := api.Response{}
@@ -86,12 +90,23 @@ func getTxIdsForAllAddresses() http.Handler {
 
 			if tx.Currency == "NAV" {
 				trans := getTxIdsFromAddresses(tx.Addresses, w, r)
-				txarr.Transactions = append(txarr.Transactions, trans)
+
+				if command == "txids" {
+					txarr.Transactions = append(txarr.Transactions, trans)
+				}
+
 			}
 
 		}
 
-		apiResp.Data = txarr
+		if command == "txids" {
+			apiResp.Data = txarr
+		}
+
+		if command == "raw" {
+			apiResp.Data = "will return raw transactions"
+		}
+
 		apiResp.Send(w)
 
 		return
@@ -108,6 +123,8 @@ func getTxIdsFromAddresses(addresses []string, w http.ResponseWriter, r *http.Re
 		txIDs := getTxIdsFromAddress(address, w, r)
 		outTrans.OutgoingAddresses = append(outTrans.OutgoingAddresses, createResponseObject(address, txIDs))
 	}
+
+
 
 	return outTrans
 
