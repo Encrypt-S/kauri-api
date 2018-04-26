@@ -10,6 +10,6 @@
     "testnetPort": 44445
   },
 
-  "useTestnet": true
+  "useTestnet": false
 
 }

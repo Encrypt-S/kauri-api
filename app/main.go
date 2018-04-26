@@ -11,6 +11,7 @@ import (
 	"github.com/Encrypt-S/kauri-api/app/api"
 	"github.com/Encrypt-S/kauri-api/app/conf"
 	"github.com/gorilla/mux"
+	"github.com/Encrypt-S/kauri-api/app/api/wallet"
 )
 
 func main() {
@@ -65,6 +66,9 @@ func main() {
 
 		}
 	*/
+
+	// init the transaction handlers
+	wallet.InitTransactionHandlers(router, "api")
 
 	// Start http server
 	port := fmt.Sprintf(":%d", serverConfig.ManagerAPIPort)
