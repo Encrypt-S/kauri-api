@@ -36,6 +36,7 @@ type appErrorsStruct struct {
 	SetupAPIUsingLocalHost errorCode
 	SetupAPINoHost         errorCode
 	SetupAPIProtectUI      errorCode
+	JSONDecodeError        errorCode
 }
 
 // AppRespErrors variable
@@ -57,6 +58,9 @@ func BuildAppErrors() {
 
 	// Login Errors
 	AppRespErrors.LoginError = errorCode{"LOGIN_ERROR", "Your username and/or password is wrong"}
+
+	// JSON Errors
+	AppRespErrors.JSONDecodeError = errorCode{"JSON_DECODE_ERROR", "Unable to decode JSON"}
 }
 
 func RouteBuilder(prefix string, namespace string, version string, method string) string {
@@ -70,8 +74,8 @@ func OpenRouteHandler(path string, r *mux.Router, f http.Handler) {
 }
 
 //func ProtectedRouteHandler(path string, r *mux.Router, f http.Handler, method string) {
-//	r.Handle(path, middleware.Adapt(f,
-//		middleware.CORSHandler(),
-//		middleware.JwtHandler())).
-//		Methods(method)
+//  r.Handle(path, middleware.Adapt(f,
+//    middleware.CORSHandler(),
+//    middleware.JwtHandler())).
+//    Methods(method)
 //}
