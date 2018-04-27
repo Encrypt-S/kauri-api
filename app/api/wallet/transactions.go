@@ -27,16 +27,20 @@ func InitTransactionHandlers(r *mux.Router, prefix string) {
 
 }
 
-type Results []struct {
-	Currency  string `json:"currency"`
-	Addresses []struct {
-		Address      string `json:"address"`
-		Transactions []struct {
-			Txid    string      `json:"txid,omitempty"`
-			Rawtx   string      `json:"rawtx,omitempty"`
-			Verbose interface{} `json:"verbose,omitempty"`
-		} `json:"transactions"`
-	} `json:"addresses"`
+type Response struct {
+	Data struct {
+		Results []struct {
+			Currency  string `json:"currency"`
+			Addresses []struct {
+				Address      string `json:"address"`
+				Transactions []struct {
+					Txid    string `json:"txid"`
+					Rawtx   string `json:"rawtx"`
+					Verbose string `json:"verbose"`
+				} `json:"transactions"`
+			} `json:"addresses"`
+		} `json:"results"`
+	} `json:"data"`
 }
 
 // IncomingTransactionsArray describes the Transactions array
@@ -51,21 +55,21 @@ type IncomingTransactions struct {
 }
 
 // OutgoingTransactionsArray describes the parsed transactions data array
-type OutgoingTransactionsArray struct {
-	Transactions []OutgoingTransactions `json:"transactions"`
-}
+//type OutgoingTransactionsArray struct {
+//	Transactions []OutgoingTransactions `json:"transactions"`
+//}
 
 // OutgoingTransactions describes the outgoing response
-type OutgoingTransactions struct {
-	Currency          string                  `json:"currency"`
-	OutgoingAddresses []OutgoingAddressObject `json:"addressobject"`
-}
+//type OutgoingTransactions struct {
+//	Currency          string                  `json:"currency"`
+//	OutgoingAddresses []OutgoingAddressObject `json:"addressobject"`
+//}
 
 // OutgoingAddressObject contains address and array of txids
-type OutgoingAddressObject struct {
-	Address            string   `json:"address"`
-	OutgoingTxIdsArray []string `json:"txids"`
-}
+//type OutgoingAddressObject struct {
+//	Address            string   `json:"address"`
+//	OutgoingTxIdsArray []string `json:"txids"`
+//}
 
 // RPCGetAddressTxIDParams describes addresses array params for getaddresstxids call
 type RPCGetAddressTxIDParams struct {
@@ -73,14 +77,14 @@ type RPCGetAddressTxIDParams struct {
 }
 
 // RPCGetDataFromAddressResponse contains RPC response :: txid array or raw tx
-type RPCGetDataFromAddressResponse struct {
-	Result []string `json:"result"`
-}
+//type RPCGetDataFromAddressResponse struct {
+//	Result []string `json:"result"`
+//}
 
 // RPCRawTxResponse contains RPC response :: raw transaction data
-type RPCRawTxResponse struct {
-	Result []string `json:"result"`
-}
+//type RPCRawTxResponse struct {
+//	Result []string `json:"result"`
+//}
 
 // getData - ranges through transactions, returns txids or raw transactions
 func getData(cmd string) http.Handler {
@@ -101,24 +105,23 @@ func getData(cmd string) http.Handler {
 			return
 		}
 
-		txarr := OutgoingTransactionsArray{}
+		//txarr := OutgoingTransactionsArray{}
+
+		//txresp := TransactionReponse{}
+
+		resp := Response{}
+		results := resp.Data.Results
 
 		for _, tx := range incomingTxs.Transactions {
 
 			if tx.Currency == "NAV" {
-				txids := getDataFromAddresses(tx.Addresses, cmd, w, r)
-				txarr.Transactions = append(txarr.Transactions, txids)
+				getDataFromAddresses(tx.Addresses, &results)
+				//txarr.Transactions = append(txarr.Transactions, txids)
 			}
 
 		}
 
-		if cmd == "txids" {
-			apiResp.Data = txarr
-		}
-
-		if cmd == "raw" {
-			apiResp.Data = "will return raw transactions"
-		}
+		apiResp.Data = resp
 
 		apiResp.Send(w)
 
@@ -127,13 +130,16 @@ func getData(cmd string) http.Handler {
 }
 
 // getDataFromAddresses returns txids from supplied addresses
-func getDataFromAddresses(addresses []string, cmd string, w http.ResponseWriter, r *http.Request) OutgoingTransactions {
+func getDataFromAddresses(addresses []string, results []string) Response {
 
-	txout := OutgoingTransactions{}
-	txout.Currency = "NAV"
+	results := resp.Data.Results
+	results......
+	//txout := OutgoingTransactions{}
+	//txout.Currency = "NAV"
+
 
 	for _, address := range addresses {
-		txIDs := getDataFromAddress(address, cmd, w, r)
+		txIDs := getDataFromAddress(address)
 		txout.OutgoingAddresses = append(txout.OutgoingAddresses, createResponseObject(address, txIDs))
 	}
 
@@ -142,7 +148,7 @@ func getDataFromAddresses(addresses []string, cmd string, w http.ResponseWriter,
 }
 
 // getDataFromAddress issuces RPC calls, returns response (txid array)
-func getDataFromAddress(address string, cmd string, w http.ResponseWriter, r *http.Request) RPCGetDataFromAddressResponse {
+func getDataFromAddress(address string, cmd string) RPCGetDataFromAddressResponse {
 
 	apiResp := api.Response{}
 
@@ -157,7 +163,7 @@ func getDataFromAddress(address string, cmd string, w http.ResponseWriter, r *ht
 	resp, rpcErr := daemonrpc.RequestDaemon(n, conf.NavConf)
 
 	if rpcErr != nil {
-		daemonrpc.RpcFailed(rpcErr, w, r)
+		//daemonrpc.RpcFailed(rpcErr, w, r)
 	}
 
 	txid := RPCGetDataFromAddressResponse{}
@@ -165,10 +171,10 @@ func getDataFromAddress(address string, cmd string, w http.ResponseWriter, r *ht
 	jsonErr := json.NewDecoder(resp.Body).Decode(&txid)
 
 	if jsonErr != nil {
-		returnErr := api.AppRespErrors.JSONDecodeError
-		returnErr.ErrorMessage = fmt.Sprintf("TxId JSON Decode Error: %v", jsonErr)
-		apiResp.Errors = append(apiResp.Errors, returnErr)
-		apiResp.Send(w)
+		//returnErr := api.AppRespErrors.JSONDecodeError
+		//returnErr.ErrorMessage = fmt.Sprintf("TxId JSON Decode Error: %v", jsonErr)
+		//apiResp.Errors = append(apiResp.Errors, returnErr)
+		//apiResp.Send(w)
 	}
 
 	//rawtx := RPCGetDataFromAddressResponse{}
@@ -187,7 +193,7 @@ func getDataFromAddress(address string, cmd string, w http.ResponseWriter, r *ht
 }
 
 // getRawTransactionFromTxId return the serialized, hex-encoded data for provided 'txid'
-func getRawTransactionsFromTxId(txid string, w http.ResponseWriter, r *http.Request) RPCRawTxResponse {
+func getRawTransactionsFromTxId(txid string) RPCRawTxResponse {
 
 	apiResp := api.Response{}
 
@@ -198,7 +204,7 @@ func getRawTransactionsFromTxId(txid string, w http.ResponseWriter, r *http.Requ
 	resp, rpcErr := daemonrpc.RequestDaemon(n, conf.NavConf)
 
 	if rpcErr != nil {
-		daemonrpc.RpcFailed(rpcErr, w, r)
+		//daemonrpc.RpcFailed(rpcErr, w, r)
 	}
 
 	rawTx := RPCRawTxResponse{}
@@ -206,10 +212,10 @@ func getRawTransactionsFromTxId(txid string, w http.ResponseWriter, r *http.Requ
 	jsonErr := json.NewDecoder(resp.Body).Decode(&rawTx)
 
 	if jsonErr != nil {
-		returnErr := api.AppRespErrors.JSONDecodeError
-		returnErr.ErrorMessage = fmt.Sprintf("Raw Tx JSON Decode Error: %v", jsonErr)
-		apiResp.Errors = append(apiResp.Errors, returnErr)
-		apiResp.Send(w)
+		//returnErr := api.AppRespErrors.JSONDecodeError
+		//returnErr.ErrorMessage = fmt.Sprintf("Raw Tx JSON Decode Error: %v", jsonErr)
+		//apiResp.Errors = append(apiResp.Errors, returnErr)
+		//apiResp.Send(w)
 	}
 
 	return rawTx
