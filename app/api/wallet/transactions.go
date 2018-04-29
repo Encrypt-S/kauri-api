@@ -126,26 +126,24 @@ func buildResponse( incomingAddreses AddressesReq ) Response {
 
 	resp := Response{}
 
-
-
+	// loop through all the lines that we received
 	for _, item := range incomingAddreses.Addresses {
 
 		if item.Currency == "NAV" {
 
+			// setup the result struct we will use later
 			result := Result{}
 			result.Currency = "NAV"
 
-
+			// ask for all the transaction related to the address an store them in the resule\t
 			result.Addresses = getTransactionsForAddresses(item.Addresses)
 
+			// Append the result to the array of results
 			resp.Results = append(resp.Results, result)
-
-
 
 		}
 
 	}
-
 
 	 return resp
 
