@@ -60,22 +60,6 @@ type AddressReqItem struct {
 	Addresses []string `json:"addresses"`
 }
 
-// OutgoingTransactionsArray describes the parsed transactions data array
-//type OutgoingTransactionsArray struct {
-//	Transactions []OutgoingTransactions `json:"transactions"`
-//}
-
-// OutgoingTransactions describes the outgoing response
-//type OutgoingTransactions struct {
-//	Currency          string                  `json:"currency"`
-//	OutgoingAddresses []OutgoingAddressObject `json:"addressobject"`
-//}
-
-// OutgoingAddressObject contains address and array of txids
-//type OutgoingAddressObject struct {
-//	Address            string   `json:"address"`
-//	OutgoingTxIdsArray []string `json:"txids"`
-//}
 
 // RPCGetAddressTxIDParams describes addresses array params for getaddresstxids call
 type RPCGetAddressTxIDParams struct {
@@ -87,10 +71,6 @@ type RpcGetAddressTxIdsResp struct {
 	Result []string `json:"result"`
 }
 
-// RPCRawTxResponse contains RPC response :: raw transaction data
-//type RPCRawTxResponse struct {
-//	Result []string `json:"result"`
-//}
 
 // getData - ranges through transactions, returns txids or raw transactions
 func getData(cmd string) http.Handler {
