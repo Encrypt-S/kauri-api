@@ -138,11 +138,13 @@ func getTransactionsForAddresses(addresses []string) []Address {
 		// for all the txIds from the rpc we need to create a transaction
 		for _, txId := range rpcTxIDsResp.Result {
 
-			trans := Transaction{Txid:txId}
-			addStruct.Transactions = append(addStruct.Transactions, trans)
-
 			//TODO: - get raw transaction from rpc
 			//TODO: - get serialised transaction from rpc
+
+
+			trans := Transaction{Txid:txId}
+
+			addStruct.Transactions = append(addStruct.Transactions, trans)
 
 		}
 
