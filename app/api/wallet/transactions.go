@@ -30,35 +30,30 @@ func InitTransactionHandlers(r *mux.Router, prefix string) {
 type Response struct {
 	Results []Result `json:"results"`
 }
-
-type Result struct {
-	Currency  string `json:"currency"`
-	Addresses []Address `json:"addresses"`
-}
-
-type Address struct {
-	Address      string `json:"address"`
-	Transactions []Transaction `json:"transactions"`
-}
-
-type Transaction struct {
-		Txid    string `json:"txid"`
-		Rawtx   string `json:"rawtx"`
-		Verbose string `json:"verbose"`
-}
+	type Result struct {
+		Currency  string `json:"currency"`
+		Addresses []Address `json:"addresses"`
+	}
+		type Address struct {
+			Address      string `json:"address"`
+			Transactions []Transaction `json:"transactions"`
+		}
+			type Transaction struct {
+					Txid    string `json:"txid"`
+					Rawtx   string `json:"rawtx"`
+					Verbose string `json:"verbose"`
+			}
 
 
 // IncomingTransactionsArray describes the Transactions array
 type AddressesReq struct {
 	Addresses []AddressReqItem `json:"transactions"`
 }
-
-
-// IncomingTransactions describes the incoming Transactions array
-type AddressReqItem struct {
-	Currency  string   `json:"currency"`
-	Addresses []string `json:"addresses"`
-}
+	// IncomingTransactions describes the incoming Transactions array
+	type AddressReqItem struct {
+		Currency  string   `json:"currency"`
+		Addresses []string `json:"addresses"`
+	}
 
 
 // RPCGetAddressTxIDParams describes addresses array params for getaddresstxids call
