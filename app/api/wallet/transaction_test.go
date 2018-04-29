@@ -100,8 +100,8 @@ func Test_getTransactionsForAddress(t *testing.T) {
 	assert.Equal(t, "NW7uXr4ZAeJKigMGnKbSLfCBQY59cH1T8G", adds[0].Address)
 	assert.Equal(t, "NUDke42E3fwLqaBbBFRyVSTETuhWAi7ugk", adds[1].Address)
 
-	//assert.Equal(t, "11a7071a43a8da2b9ac116865a6cd92c985c3f7cbde63933d253f88dffaa311a", adds[1].Transactions[0].Txid)
-	//assert.Equal(t, "c6b6063a0512ed40958bff62a48168b4b30f89cb6bce22b722f8a6d00fcb9d98", adds[1].Transactions[1].Txid)
+	assert.Equal(t, "11a7071a43a8da2b9ac116865a6cd92c985c3f7cbde63933d253f88dffaa311a", adds[0].Transactions[0].Txid)
+	assert.Equal(t, "c6b6063a0512ed40958bff62a48168b4b30f89cb6bce22b722f8a6d00fcb9d98", adds[0].Transactions[1].Txid)
 
 }
 
