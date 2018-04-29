@@ -12,6 +12,7 @@ import (
 	"github.com/Encrypt-S/kauri-api/app/conf"
 	"github.com/gorilla/mux"
 	"github.com/Encrypt-S/kauri-api/app/api/wallet"
+	"github.com/Encrypt-S/navpi-go/app/daemon"
 )
 
 func main() {
@@ -42,6 +43,8 @@ func main() {
 	// setup the router and the api
 	router := mux.NewRouter()
 	api.InitMetaHandlers(router, "api")
+
+	daemon.StartManager()
 
 	/*
 		// check to see if we have a defined running config

@@ -82,8 +82,8 @@ type RPCGetAddressTxIDParams struct {
 	Addresses []string `json:"addresses"`
 }
 
-// RPCGetDataFromAddressResponse contains RPC response :: txid array or raw tx
-type RPCGetDataFromAddressResponse struct {
+// RpcGetAddressTxIdsResp contains RPC response :: txid array or raw tx
+type RpcGetAddressTxIdsResp struct {
 	Result []string `json:"result"`
 }
 
@@ -111,13 +111,7 @@ func getData(cmd string) http.Handler {
 			return
 		}
 
-		//txarr := OutgoingTransactionsArray{}
-
-		//txresp := TransactionReponse{}
-
 		resp := buildResponse(incomingTxs)
-
-
 
 		apiResp.Data = resp
 
@@ -142,14 +136,10 @@ func buildResponse( incomingAddreses AddressesReq ) Response {
 			result.Currency = "NAV"
 
 
-			result.Addresses = getTransactionsForAddress(item.Addresses)
+			result.Addresses = getTransactionsForAddresses(item.Addresses)
 
 			resp.Results = append(resp.Results, result)
 
-			//// loop through all the addresses and get the data
-			//for _, tx := range incomingTxs.Transactions {
-			//
-			//}
 
 
 		}
@@ -162,14 +152,26 @@ func buildResponse( incomingAddreses AddressesReq ) Response {
 }
 
 
-func getTransactionsForAddress(addresses []string) []Address {
+func getTransactionsForAddresses(addresses []string) []Address {
 
 	adds := []Address{}
 
-	for _, addresStr := range addresses {
+	for _, addressStr := range addresses {
 
 		addStruct := Address{}
-		addStruct.Address = addresStr
+		addStruct.Address = addressStr
+		rpcTxIDsResp := getTxIDForAddressFromDaemon(addressStr)
+
+		// for all the txIds from the rpc we need to create a transaction
+		for _, txId := range rpcTxIDsResp.Result {
+
+			trans := Transaction{Txid:txId}
+			addStruct.Transactions = append(addStruct.Transactions, trans)
+
+			//TODO: - get raw transaction from rpc
+			//TODO: - get serialised transaction from rpc
+
+		}
 
 		adds = append(adds, addStruct)
 
@@ -179,7 +181,7 @@ func getTransactionsForAddress(addresses []string) []Address {
 }
 
 // Gets all the transaction ids from the daemon for a given address
-func getTxIDForAddressFromDaemon(address string) RPCGetDataFromAddressResponse {
+func getTxIDForAddressFromDaemon(address string) RpcGetAddressTxIdsResp {
 
 
 	getParams := RPCGetAddressTxIDParams{}
@@ -196,7 +198,7 @@ func getTxIDForAddressFromDaemon(address string) RPCGetDataFromAddressResponse {
 		//daemonrpc.RpcFailed(rpcErr, w, r)
 	}
 
-	rpcTxIdResults := RPCGetDataFromAddressResponse{}
+	rpcTxIdResults := RpcGetAddressTxIdsResp{}
 
 	jsonErr := json.NewDecoder(resp.Body).Decode(&rpcTxIdResults)
 
@@ -208,9 +210,12 @@ func getTxIDForAddressFromDaemon(address string) RPCGetDataFromAddressResponse {
 	}
 
 
+
 	return rpcTxIdResults
 
 }
+
+
 
 
 /*
@@ -234,7 +239,7 @@ func getDataFromAddresses(addresses []string, resp *Response) Response {
 }
 
 // getDataFromAddress issuces RPC calls, returns response (txid array)
-func getDataFromAddress(address strings) RPCGetDataFromAddressResponse {
+func getDataFromAddress(address strings) RpcGetAddressTxIdsResp {
 
 	apiResp := api.Response{}
 
@@ -252,7 +257,7 @@ func getDataFromAddress(address strings) RPCGetDataFromAddressResponse {
 		//daemonrpc.RpcFailed(rpcErr, w, r)
 	}
 
-	txid := RPCGetDataFromAddressResponse{}
+	txid := RpcGetAddressTxIdsResp{}
 
 	jsonErr := json.NewDecoder(resp.Body).Decode(&txid)
 
@@ -263,7 +268,7 @@ func getDataFromAddress(address strings) RPCGetDataFromAddressResponse {
 		//apiResp.Send(w)
 	}
 
-	//rawtx := RPCGetDataFromAddressResponse{}
+	//rawtx := RpcGetAddressTxIdsResp{}
 	//
 	//resp := txid
 	//
@@ -311,7 +316,7 @@ func getRawTransactionsFromTxId(txid string) RPCRawTxResponse {
 
 
 // createResponseObject formats the address, array of txids into outgoing address object
-func createResponseObject(address string, txIDs RPCGetDataFromAddressResponse) OutgoingAddressObject {
+func createResponseObject(address string, txIDs RpcGetAddressTxIdsResp) OutgoingAddressObject {
 
 	outAddObj := OutgoingAddressObject{}
 	outAddObj.Address = address
