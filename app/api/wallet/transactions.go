@@ -10,6 +10,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/Encrypt-S/kauri-api/app/daemon/daemonrpc"
 	"github.com/Encrypt-S/kauri-api/app/conf"
+	"log"
+	"io/ioutil"
 )
 
 // InitTransactionHandlers sets up handlers for transaction-related rpc commands
@@ -41,7 +43,7 @@ type Response struct {
 			type Transaction struct {
 					Txid    string `json:"txid"`
 					Rawtx   string `json:"rawtx"`
-					Verbose string `json:"verbose"`
+					Verbose interface{} `json:"verbose"`
 			}
 
 
@@ -61,9 +63,14 @@ type RPCGetAddressTxIDParams struct {
 	Addresses []string `json:"addresses"`
 }
 
-// RpcGetAddressTxIdsResp contains RPC response :: txid array or raw tx
-type RpcGetAddressTxIdsResp struct {
+// RPCGetAddressTxIdsResp contains RPC response :: txid array
+type RPCGetAddressTxIdsResp struct {
 	Result []string `json:"result"`
+}
+
+// RPCGetAddressRawTx contains RPC response :: raw tx
+type RPCGetAddressRawTx struct {
+	Result string `json:"result"`
 }
 
 
@@ -138,12 +145,10 @@ func getTransactionsForAddresses(addresses []string) []Address {
 		// for all the txIds from the rpc we need to create a transaction
 		for _, txId := range rpcTxIDsResp.Result {
 
-			//TODO: - get raw transaction from rpc
-			//TODO: - get serialised transaction from rpc
+			rawTx := getRawTx(txId)
+			verboseTx := getVerboseTx(txId)
 
-
-			trans := Transaction{Txid:txId}
-
+			trans := Transaction{Txid:txId, Rawtx:rawTx.Result, Verbose: verboseTx}
 			addStruct.Transactions = append(addStruct.Transactions, trans)
 
 		}
@@ -156,8 +161,7 @@ func getTransactionsForAddresses(addresses []string) []Address {
 }
 
 // Gets all the transaction ids from the daemon for a given address
-func getTxIDForAddressFromDaemon(address string) RpcGetAddressTxIdsResp {
-
+func getTxIDForAddressFromDaemon(address string) RPCGetAddressTxIdsResp {
 
 	getParams := RPCGetAddressTxIDParams{}
 
@@ -173,7 +177,7 @@ func getTxIDForAddressFromDaemon(address string) RpcGetAddressTxIdsResp {
 		//daemonrpc.RpcFailed(rpcErr, w, r)
 	}
 
-	rpcTxIdResults := RpcGetAddressTxIdsResp{}
+	rpcTxIdResults := RPCGetAddressTxIdsResp{}
 
 	jsonErr := json.NewDecoder(resp.Body).Decode(&rpcTxIdResults)
 
@@ -187,6 +191,56 @@ func getTxIDForAddressFromDaemon(address string) RpcGetAddressTxIdsResp {
 
 
 	return rpcTxIdResults
+
+}
+
+func getRawTx(txid string) RPCGetAddressRawTx {
+
+	n := daemonrpc.RpcRequestData{}
+	n.Method = "getrawtransaction"
+	n.Params = []string{txid}
+
+	resp, rpcErr := daemonrpc.RequestDaemon(n, conf.NavConf)
+	if rpcErr != nil {
+		//log.Printf()
+		log.Println("getRawTx rpcErr", rpcErr)
+	}
+
+	// TODO: PAUL look at why this is not auto unmarshalling
+	bodyBytes, _ := ioutil.ReadAll(resp.Body)
+	var dat map[string]string
+
+	if err := json.Unmarshal(bodyBytes, &dat); err != nil {
+		panic(err)
+	}
+
+	rawResp := RPCGetAddressRawTx{}
+	rawResp.Result = dat["result"]
+
+	return rawResp
+
+}
+
+// TODO: Write test for this...
+func getVerboseTx(txid string) interface{} {
+
+	n := daemonrpc.RpcRequestData{}
+	n.Method = "getrawtransaction"
+	n.Params = []interface{}{txid, 1}
+
+	resp, rpcErr := daemonrpc.RequestDaemon(n, conf.NavConf)
+	if rpcErr != nil {
+		log.Println("getRawTx rpcErr", rpcErr)
+	}
+
+	bodyBytes, _ := ioutil.ReadAll(resp.Body)
+	var dat map[string]interface{}
+
+	if err := json.Unmarshal(bodyBytes, &dat); err != nil {
+		panic(err)
+	}
+
+	return dat["result"]
 
 }
 

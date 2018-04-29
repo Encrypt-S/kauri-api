@@ -5,11 +5,10 @@ import (
 	"encoding/json"
 	"bytes"
 	"github.com/stretchr/testify/assert"
-	"log"
 	"gopkg.in/jarcoal/httpmock.v1"
 )
 
-func getTxIdsData() string {
+func testMockGetTxIdsData() string {
 	return `{"result":[
   "11a7071a43a8da2b9ac116865a6cd92c985c3f7cbde63933d253f88dffaa311a",
   "c6b6063a0512ed40958bff62a48168b4b30f89cb6bce22b722f8a6d00fcb9d98",
@@ -19,6 +18,12 @@ func getTxIdsData() string {
   "01f7b0831f174beb8a9b0990ca8bae197f6f1e4fe3d306c755d9f52da5687a9d"
 ]}`
 
+}
+
+func testMockGetRawTxData() string {
+	return `{"result": "123",
+"error": null,
+"id": null}`
 }
 
 // This functions mocks out the data struct
@@ -58,7 +63,7 @@ func Test_buildResponse(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder("POST", "http://127.0.0.1:0",
-		httpmock.NewStringResponder(200, getTxIdsData()))
+		httpmock.NewStringResponder(200, testMockGetTxIdsData()))
 
 	incomingAddreses := setupIncomingTestData(t)
 	resp := buildResponse(incomingAddreses)
@@ -85,7 +90,7 @@ func Test_getTransactionsForAddress(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder("POST", "http://127.0.0.1:0",
-		httpmock.NewStringResponder(200, getTxIdsData()))
+		httpmock.NewStringResponder(200, testMockGetTxIdsData()))
 
 
 	incomingAddresses := setupIncomingTestData(t)
@@ -108,17 +113,32 @@ func Test_getTransactionsForAddress(t *testing.T) {
 
 func Test_getTxIDForAddressFromDaemon(t *testing.T) {
 
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder("POST", "http://127.0.0.1:0",
+		httpmock.NewStringResponder(200, testMockGetTxIdsData()))
+
+	rpcResp := getTxIDForAddressFromDaemon("NW7uXr4ZAeJKigMGnKbSLfCBQY59cH1T8G")
+
+	assert.Equal(t, "11a7071a43a8da2b9ac116865a6cd92c985c3f7cbde63933d253f88dffaa311a", rpcResp.Result[0])
+	assert.Equal(t, "52489abff43212445d432f6042e5b9faf99b3c843a79210629b5383f52694ec5", rpcResp.Result[4])
+
+}
+
+func Test_getRawTx(t *testing.T) {
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder("POST", "http://127.0.0.1:0",
-		httpmock.NewStringResponder(200, getTxIdsData()))
+		httpmock.NewStringResponder(200, testMockGetRawTxData()))
 
-	rpcResp := getTxIDForAddressFromDaemon("NW7uXr4ZAeJKigMGnKbSLfCBQY59cH1T8G")
-	log.Println(rpcResp)
 
-	assert.Equal(t, "11a7071a43a8da2b9ac116865a6cd92c985c3f7cbde63933d253f88dffaa311a", rpcResp.Result[0])
-	assert.Equal(t, "52489abff43212445d432f6042e5b9faf99b3c843a79210629b5383f52694ec5", rpcResp.Result[4])
+
+	rpcResp := getRawTx("11a7071a43a8da2b9ac116865a6cd92c985c3f7cbde63933d253f88dffaa311a")
+
+
+	assert.Equal(t, "123", rpcResp.Result)
 
 }
