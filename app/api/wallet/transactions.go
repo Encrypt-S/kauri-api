@@ -6,12 +6,12 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"io/ioutil"
+
 	"github.com/Encrypt-S/kauri-api/app/api"
 	"github.com/Encrypt-S/kauri-api/app/conf"
 	"github.com/Encrypt-S/kauri-api/app/daemon/daemonrpc"
 	"github.com/gorilla/mux"
-	"io/ioutil"
-	"log"
 )
 
 // InitTransactionHandlers sets up handlers for transaction-related rpc commands
@@ -19,75 +19,89 @@ func InitTransactionHandlers(r *mux.Router, prefix string) {
 
 	namespace := "transactions"
 
-	// setup "getrawtransactions" endpoint - provides raw transaction data for supplied wallet addresses
+	// get raw transactions endpoint :: provides raw transaction data for supplied wallet addresses
 	getRawTransactionsPath := api.RouteBuilder(prefix, namespace, "v1", "getrawtransactions")
 	api.OpenRouteHandler(getRawTransactionsPath, r, getRawTransactions())
 
 }
 
+// Response describes top-level response object
 type Response struct {
 	Results []Result `json:"results"`
 }
+
+// Result describes each item returned in results array
 type Result struct {
 	Currency  string    `json:"currency"`
 	Addresses []Address `json:"addresses"`
 }
+
+// Address describes each item returned in IncomingTxItems array
 type Address struct {
 	Address      string        `json:"address"`
 	Transactions []Transaction `json:"transactions"`
 }
+
+// Transaction describes each item returned in transactions array
 type Transaction struct {
-	Txid    string      `json:"txid"`
-	Rawtx   string      `json:"rawtx"`
+	TxID    string      `json:"txid"`
+	RawTx   string      `json:"rawtx"`
 	Verbose interface{} `json:"verbose"`
 }
 
-// IncomingTransactionsArray describes the Transactions array
-type AddressesReq struct {
-	Addresses []AddressReqItem `json:"transactions"`
+// IncomingTransactions describes the incoming transactions in POST body
+type IncomingTransactions struct {
+	IncomingTxItems []IncomingTxItem `json:"transactions"`
 }
 
-// IncomingTransactions describes the incoming Transactions array
-type AddressReqItem struct {
+// IncomingTxItem describes incoming transaction items
+type IncomingTxItem struct {
 	Currency  string   `json:"currency"`
 	Addresses []string `json:"addresses"`
 }
 
-// RPCGetAddressTxIDParams describes addresses array params for getaddresstxids call
-type RPCGetAddressTxIDParams struct {
+// GetTxIDParams describes addresses array params for 'getaddresstxids' RPC call
+type GetTxIDParams struct {
 	Addresses []string `json:"addresses"`
 }
 
-// GetTxIdsRPCResp contains RPC response :: txid array
-type GetTxIdsRPCResp struct {
+// GetTxIdsResp describes Result of RPC response > txid (array)
+type GetTxIdsResp struct {
 	Result []string `json:"result"`
 }
 
-// RPCGetAddressRawTx contains RPC response :: raw tx
-type RPCGetAddressRawTx struct {
+// GetRawTxResp descibes Result of RPC response > raw (string)
+type GetRawTxResp struct {
 	Result string `json:"result"`
 }
 
-// getRawTransactions - ranges through transactions, returns rpc response data
+// getRawTransactions ranges through transactions, returns RPC response data
 func getRawTransactions() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		apiResp := api.Response{}
 
-		var incomingTxs AddressesReq
+		var incomingTxs IncomingTransactions
 
 		err := json.NewDecoder(r.Body).Decode(&incomingTxs)
 
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			returnErr := api.AppRespErrors.ServerError
-			returnErr.ErrorMessage = fmt.Sprintf("Server error: %v", err)
+			returnErr := api.AppRespErrors.JSONDecodeError
+			returnErr.ErrorMessage = fmt.Sprintf("JSON decode error: %v", err)
 			apiResp.Errors = append(apiResp.Errors, returnErr)
 			apiResp.Send(w)
 			return
 		}
 
-		resp := buildResponse(incomingTxs)
+		resp, err := buildResponse(incomingTxs)
+
+		if err != nil {
+			returnErr := api.AppRespErrors.RPCResponseError
+			returnErr.ErrorMessage = fmt.Sprintf("Response error: %v", err)
+			apiResp.Errors = append(apiResp.Errors, returnErr)
+			apiResp.Send(w)
+			return
+		}
 
 		apiResp.Data = resp
 
@@ -98,12 +112,12 @@ func getRawTransactions() http.Handler {
 }
 
 // buildResponse takes address and returns response data
-func buildResponse(incomingAddreses AddressesReq) Response {
+func buildResponse(incomingAddreses IncomingTransactions) (Response, error) {
 
 	resp := Response{}
 
 	// loop through all the lines that we received
-	for _, item := range incomingAddreses.Addresses {
+	for _, item := range incomingAddreses.IncomingTxItems {
 
 		if item.Currency == "NAV" {
 
@@ -112,7 +126,7 @@ func buildResponse(incomingAddreses AddressesReq) Response {
 			result.Currency = "NAV"
 
 			// get transaction related to the address and store them in the result
-			result.Addresses = getTransactionsForAddresses(item.Addresses)
+			result.Addresses, _ = getTransactionsForAddresses(item.Addresses)
 
 			// append the result to the array of results
 			resp.Results = append(resp.Results, result)
@@ -121,12 +135,12 @@ func buildResponse(incomingAddreses AddressesReq) Response {
 
 	}
 
-	return resp
+	return resp, nil
 
 }
 
 // getTransactionsForAddresses takes addresses array and returns data for each
-func getTransactionsForAddresses(addresses []string) []Address {
+func getTransactionsForAddresses(addresses []string) ([]Address, error) {
 
 	adds := []Address{}
 
@@ -134,15 +148,28 @@ func getTransactionsForAddresses(addresses []string) []Address {
 
 		addStruct := Address{}
 		addStruct.Address = addressStr
-		rpcTxIDsResp := getTxIdsRPC(addressStr)
+		rpcTxIDsResp, err := getTxIdsRPC(addressStr)
+
+		if err != nil {
+			return nil, err
+		}
 
 		// for all the txIds from the rpc we need to create a transaction
 		for _, txId := range rpcTxIDsResp.Result {
 
-			rawTx := getRawTx(txId)
-			verboseTx := getVerboseTx(txId)
+			rawTx, _ := getRawTx(txId)
 
-			trans := Transaction{Txid: txId, Rawtx: rawTx.Result, Verbose: verboseTx}
+			if err != nil {
+				return nil, err
+			}
+
+			verboseTx, _ := getRawTxVerbose(txId)
+
+			if err != nil {
+				return nil, err
+			}
+
+			trans := Transaction{TxID: txId, RawTx: rawTx.Result, Verbose: verboseTx}
 			addStruct.Transactions = append(addStruct.Transactions, trans)
 
 		}
@@ -151,87 +178,84 @@ func getTransactionsForAddresses(addresses []string) []Address {
 
 	}
 
-	return adds
+	return adds, nil
 }
 
 // getTxIdsRPC takes address and returns array of txids
-func getTxIdsRPC(address string) GetTxIdsRPCResp {
+func getTxIdsRPC(address string) (GetTxIdsResp, error) {
 
-	getParams := RPCGetAddressTxIDParams{}
+	getParams := GetTxIDParams{}
 
 	getParams.Addresses = append(getParams.Addresses, address)
 
 	n := daemonrpc.RpcRequestData{}
 	n.Method = "getaddresstxids"
-	n.Params = []RPCGetAddressTxIDParams{getParams}
+	n.Params = []GetTxIDParams{getParams}
 
-	resp, rpcErr := daemonrpc.RequestDaemon(n, conf.NavConf)
+	resp, err := daemonrpc.RequestDaemon(n, conf.NavConf)
 
-	if rpcErr != nil {
-		//daemonrpc.RpcFailed(rpcErr, w, r)
+	if err != nil {
+		return GetTxIdsResp{}, err
 	}
 
-	rpcTxIdResults := GetTxIdsRPCResp{}
+	rpcTxIdResults := GetTxIdsResp{}
 
-	jsonErr := json.NewDecoder(resp.Body).Decode(&rpcTxIdResults)
+	err = json.NewDecoder(resp.Body).Decode(&rpcTxIdResults)
 
-	if jsonErr != nil {
-		//returnErr := api.AppRespErrors.JSONDecodeError
-		//returnErr.ErrorMessage = fmt.Sprintf("TxId JSON Decode Error: %v", jsonErr)
-		//apiResp.Errors = append(apiResp.Errors, returnErr)
-		//apiResp.Send(w)
+	if err != nil {
+		return GetTxIdsResp{}, err
 	}
 
-	return rpcTxIdResults
+	return rpcTxIdResults, nil
 
 }
 
-func getRawTx(txid string) RPCGetAddressRawTx {
+// getRawTx takes txid and returns raw transaction data
+func getRawTx(txid string) (GetRawTxResp, error) {
 
 	n := daemonrpc.RpcRequestData{}
 	n.Method = "getrawtransaction"
 	n.Params = []string{txid}
 
-	resp, rpcErr := daemonrpc.RequestDaemon(n, conf.NavConf)
-	if rpcErr != nil {
-		//log.Printf()
-		log.Println("getRawTx rpcErr", rpcErr)
+	resp, err := daemonrpc.RequestDaemon(n, conf.NavConf)
+	if err != nil {
+		return GetRawTxResp{}, err
 	}
 
-	// TODO: PAUL look at why this is not auto unmarshalling
 	bodyBytes, _ := ioutil.ReadAll(resp.Body)
-	var dat map[string]string
+	var rawData map[string]string
 
-	if err := json.Unmarshal(bodyBytes, &dat); err != nil {
-		panic(err)
+	if err := json.Unmarshal(bodyBytes, &rawData); err != nil {
+		return GetRawTxResp{}, err
 	}
 
-	rawResp := RPCGetAddressRawTx{}
-	rawResp.Result = dat["result"]
+	rawResp := GetRawTxResp{}
+	rawResp.Result = rawData["result"]
 
-	return rawResp
+	return rawResp, nil
 
 }
 
-// TODO: Write test for this...
-func getVerboseTx(txid string) interface{} {
+// getRawTxVerbose takes txid and returns verbose transaction data
+func getRawTxVerbose(txid string) (interface{}, error) {
 
 	n := daemonrpc.RpcRequestData{}
 	n.Method = "getrawtransaction"
 	n.Params = []interface{}{txid, 1}
 
-	resp, rpcErr := daemonrpc.RequestDaemon(n, conf.NavConf)
-	if rpcErr != nil {
-		log.Println("getRawTx rpcErr", rpcErr)
+	resp, err := daemonrpc.RequestDaemon(n, conf.NavConf)
+
+	if err != nil {
+		return nil, err
 	}
 
 	bodyBytes, _ := ioutil.ReadAll(resp.Body)
-	var dat map[string]interface{}
+	var data map[string]interface{}
 
-	if err := json.Unmarshal(bodyBytes, &dat); err != nil {
-		panic(err)
+	if err := json.Unmarshal(bodyBytes, &data); err != nil {
+		return nil, err
 	}
 
-	return dat["result"]
+	return data["result"], nil
 
 }
