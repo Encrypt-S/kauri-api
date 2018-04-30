@@ -1,14 +1,16 @@
 package wallet
 
 import (
-	"testing"
-	"encoding/json"
 	"bytes"
+	"encoding/json"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/jarcoal/httpmock.v1"
 )
 
-func testMockGetTxIdsData() string {
+// mock data struct for get txids response
+func mockGetTxIdsResponseData() string {
 	return `{"result":[
   "11a7071a43a8da2b9ac116865a6cd92c985c3f7cbde63933d253f88dffaa311a",
   "c6b6063a0512ed40958bff62a48168b4b30f89cb6bce22b722f8a6d00fcb9d98",
@@ -17,17 +19,17 @@ func testMockGetTxIdsData() string {
   "52489abff43212445d432f6042e5b9faf99b3c843a79210629b5383f52694ec5",
   "01f7b0831f174beb8a9b0990ca8bae197f6f1e4fe3d306c755d9f52da5687a9d"
 ]}`
-
 }
 
-func testMockGetRawTxData() string {
+// mock data struct for get raw tx response
+func mockGetRawTxResponseData() string {
 	return `{"result": "123",
 "error": null,
 "id": null}`
 }
 
-// This functions mocks out the data struct
-func setupIncomingTestData(t *testing.T) AddressesReq  {
+// mock out the data struct for incoming POST body
+func setupIncomingTestData(t *testing.T) AddressesReq {
 	data := `
 	{"transactions": [
     {"currency":  "NAV", "addresses": ["NW7uXr4ZAeJKigMGnKbSLfCBQY59cH1T8G", "NUDke42E3fwLqaBbBFRyVSTETuhWAi7ugk"]},
@@ -41,8 +43,7 @@ func setupIncomingTestData(t *testing.T) AddressesReq  {
 	var incomingAddressesReq AddressesReq
 	json.NewDecoder(r).Decode(&incomingAddressesReq)
 
-
-	//Preflight checks
+	// Preflight checks
 	assert.Equal(t, "NAV", incomingAddressesReq.Addresses[0].Currency)
 	assert.Equal(t, "NW7uXr4ZAeJKigMGnKbSLfCBQY59cH1T8G", incomingAddressesReq.Addresses[0].Addresses[0])
 	assert.Equal(t, "NUDke42E3fwLqaBbBFRyVSTETuhWAi7ugk", incomingAddressesReq.Addresses[0].Addresses[1])
@@ -51,25 +52,22 @@ func setupIncomingTestData(t *testing.T) AddressesReq  {
 	assert.Equal(t, "Bak7ahbZAA", incomingAddressesReq.Addresses[1].Addresses[0])
 	assert.Equal(t, "B91janABsa", incomingAddressesReq.Addresses[1].Addresses[1])
 
-
-
 	return incomingAddressesReq
 }
 
-
+// Test_buildResponse tests the main buildResponse function
 func Test_buildResponse(t *testing.T) {
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder("POST", "http://127.0.0.1:0",
-		httpmock.NewStringResponder(200, testMockGetTxIdsData()))
+		httpmock.NewStringResponder(200, mockGetTxIdsResponseData()))
 
 	incomingAddreses := setupIncomingTestData(t)
 	resp := buildResponse(incomingAddreses)
 
-
-	// Assert we have only nav currencies
+	// check that we have only nav currencies
 	for i := range resp.Results {
 		assert.Equal(t, "NAV", resp.Results[i].Currency)
 	}
@@ -84,14 +82,14 @@ func Test_buildResponse(t *testing.T) {
 
 }
 
+
 func Test_getTransactionsForAddress(t *testing.T) {
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder("POST", "http://127.0.0.1:0",
-		httpmock.NewStringResponder(200, testMockGetTxIdsData()))
-
+		httpmock.NewStringResponder(200, mockGetTxIdsResponseData()))
 
 	incomingAddresses := setupIncomingTestData(t)
 
@@ -110,34 +108,32 @@ func Test_getTransactionsForAddress(t *testing.T) {
 
 }
 
-
-func Test_getTxIDForAddressFromDaemon(t *testing.T) {
+// test that array of txids are returned from supplied address
+func Test_getTxIDsRPC(t *testing.T) {
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder("POST", "http://127.0.0.1:0",
-		httpmock.NewStringResponder(200, testMockGetTxIdsData()))
+		httpmock.NewStringResponder(200, mockGetTxIdsResponseData()))
 
-	rpcResp := getTxIDForAddressFromDaemon("NW7uXr4ZAeJKigMGnKbSLfCBQY59cH1T8G")
+	rpcResp := getTxIdsRPC("NW7uXr4ZAeJKigMGnKbSLfCBQY59cH1T8G")
 
 	assert.Equal(t, "11a7071a43a8da2b9ac116865a6cd92c985c3f7cbde63933d253f88dffaa311a", rpcResp.Result[0])
 	assert.Equal(t, "52489abff43212445d432f6042e5b9faf99b3c843a79210629b5383f52694ec5", rpcResp.Result[4])
 
 }
 
+// test that raw transaction data is returned from supplied txid
 func Test_getRawTx(t *testing.T) {
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder("POST", "http://127.0.0.1:0",
-		httpmock.NewStringResponder(200, testMockGetRawTxData()))
-
-
+		httpmock.NewStringResponder(200, mockGetRawTxResponseData()))
 
 	rpcResp := getRawTx("11a7071a43a8da2b9ac116865a6cd92c985c3f7cbde63933d253f88dffaa311a")
-
 
 	assert.Equal(t, "123", rpcResp.Result)
 
