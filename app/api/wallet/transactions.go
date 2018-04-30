@@ -19,13 +19,9 @@ func InitTransactionHandlers(r *mux.Router, prefix string) {
 
 	namespace := "transactions"
 
-	// setup endpoint to be used for receiving txids for all supplied addresses
-	getTxIdsPath := api.RouteBuilder(prefix, namespace, "v1", "getaddresstxids")
-	api.OpenRouteHandler(getTxIdsPath, r, getData("txids"))
-
 	// setup "getrawtransactions" endpoint - provides raw transaction data for supplied wallet addresses
 	getRawTransactionsPath := api.RouteBuilder(prefix, namespace, "v1", "getrawtransactions")
-	api.OpenRouteHandler(getRawTransactionsPath, r, getData("raw"))
+	api.OpenRouteHandler(getRawTransactionsPath, r, getRawTransactions())
 
 }
 
@@ -72,8 +68,8 @@ type RPCGetAddressRawTx struct {
 	Result string `json:"result"`
 }
 
-// getData - ranges through transactions, returns rpc response data
-func getData(cmd string) http.Handler {
+// getRawTransactions - ranges through transactions, returns rpc response data
+func getRawTransactions() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		apiResp := api.Response{}
