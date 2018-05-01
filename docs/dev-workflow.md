@@ -46,18 +46,10 @@ you will now be able to execute rpc commands accordingly
 - Once the app is running it will be accessible at `127.0.0.1:9002`
 - The default `managerApiPort` is `9002` and set in `server-config.json`
 
-## wizard API
-These endpoints are used for the NavPi setup wizard.
+### getrawtransactions
+returns raw transactions from supplied array of wallet addresses
 
-### setrange
-takes the users ip address and saves it to the config as a range
-
-    /api/setup/v1/setrange
-
-### protectui
-takes the api response and checks username and password
-
-    /api/setup/v1/protectui
+    /api/transactions/v1/getrawtransactions
 
 ## daemon API
 These endpoints are used in the NavPi UI.
