@@ -88,7 +88,7 @@ func encryptWallet() http.Handler {
 		resp, err := daemonrpc.RequestDaemon(n, conf.NavConf)
 
 		if err != nil {
-			daemonrpc.RpcFailed(err, w, r)
+			daemonrpc.RPCFailed(err, w, r)
 			return
 		}
 
@@ -110,7 +110,7 @@ func stakeReport() http.Handler {
 
 		// Handle errors requesting the daemon
 		if err != nil {
-			daemonrpc.RpcFailed(err, w, r)
+			daemonrpc.RPCFailed(err, w, r)
 			return
 		}
 
