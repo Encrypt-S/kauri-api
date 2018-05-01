@@ -43,6 +43,8 @@ func main() {
 	router := mux.NewRouter()
 	api.InitMetaHandlers(router, "api")
 
+	//daemon.StartManager()
+
 	/*
 		// check to see if we have a defined running config
 		// If not we are only going to boot the setup apis, otherwise we will start the app

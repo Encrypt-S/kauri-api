@@ -29,7 +29,7 @@
   branch = "master"
   name = "github.com/dustin/go-humanize"
   packages = ["."]
-  revision = "bb3d318650d48840a39aa21a027c6630e198e626"
+  revision = "02af3965c54e8cacf948b97fef38925c4120652c"
 
 [[projects]]
   name = "github.com/fsnotify/fsnotify"
@@ -79,10 +79,10 @@
   revision = "00c29f56e2386353d58c599509e8dc3801b0d716"
 
 [[projects]]
-  branch = "master"
   name = "github.com/muesli/crunchy"
   packages = ["."]
-  revision = "f17698490fdf74439244b7b019e2e3d00ca4d870"
+  revision = "298ccf363dc2cda2cecde381494bbcff09843005"
+  version = "v0.1"
 
 [[projects]]
   name = "github.com/pelletier/go-toml"
@@ -149,7 +149,7 @@
     "blowfish",
     "ssh/terminal"
   ]
-  revision = "d6449816ce06963d9d136eee5a56fca5b0616e7e"
+  revision = "ae8bce0030810cf999bb2b9868ae5c7c58e6343b"
 
 [[projects]]
   branch = "master"
@@ -158,7 +158,7 @@
     "unix",
     "windows"
   ]
-  revision = "2281fa97ef7b0c26324634d5a22f04babdac8713"
+  revision = "4adea008a5e5f820b6028611ae0b6b3fbcec534b"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -174,6 +174,12 @@
   version = "v0.3.0"
 
 [[projects]]
+  branch = "v1"
+  name = "gopkg.in/jarcoal/httpmock.v1"
+  packages = ["."]
+  revision = "eb84b840d3d6889d2458ceed28e3c6f0d109f6c8"
+
+[[projects]]
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
@@ -182,6 +188,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "aec68b15c30b403fdd05a273c4f6c481ff07d69b043977be75f09c53ca972a99"
+  inputs-digest = "0f3fcb07740000c8a8dec17865be1bebd02b1a46fd50f152752fe286ac6cbe7c"
   solver-name = "gps-cdcl"
   solver-version = 1

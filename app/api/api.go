@@ -30,13 +30,11 @@ type errorCode struct {
 
 // appErrorsStruct defines errors, errorCodes
 type appErrorsStruct struct {
-	LoginError             errorCode
-	InvalidStrength        errorCode
-	ServerError            errorCode
-	SetupAPIUsingLocalHost errorCode
-	SetupAPINoHost         errorCode
-	SetupAPIProtectUI      errorCode
-	JSONDecodeError        errorCode
+	LoginError       errorCode
+	InvalidStrength  errorCode
+	ServerError      errorCode
+	RPCResponseError errorCode
+	JSONDecodeError  errorCode
 }
 
 // AppRespErrors variable
@@ -51,10 +49,8 @@ func BuildAppErrors() {
 	AppRespErrors.ServerError = errorCode{"SERVER_ERROR", "There was an unexpected error - please try again"}
 	AppRespErrors.InvalidStrength = errorCode{"INVALID_STRENGTH", ""}
 
-	// Setup API Errors
-	AppRespErrors.SetupAPIUsingLocalHost = errorCode{"SETUP_HOST_NOT_FOUND", "The host was not found"}
-	AppRespErrors.SetupAPINoHost = errorCode{"SETUP_USING_LOCAL_HOST", "You are using localhost, please use 127.0.01 or your network ip address"}
-	AppRespErrors.SetupAPIProtectUI = errorCode{"SETUP_MISSING_USERNAME_PASSWORD", "You are missing the username and/or password"}
+	// RPC Errors
+	AppRespErrors.RPCResponseError = errorCode{"RPC_RESPONSE_ERROR", "There was an RPC response error"}
 
 	// Login Errors
 	AppRespErrors.LoginError = errorCode{"LOGIN_ERROR", "Your username and/or password is wrong"}

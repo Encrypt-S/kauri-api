@@ -46,8 +46,8 @@
   version = "1.6.1"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/muesli/crunchy"
+  version = "0.1.0"
 
 [[constraint]]
   name = "github.com/spf13/viper"
@@ -60,6 +60,10 @@
 [[constraint]]
   branch = "master"
   name = "golang.org/x/crypto"
+
+[[constraint]]
+  branch = "v1"
+  name = "gopkg.in/jarcoal/httpmock.v1"
 
 [prune]
   go-tests = true
