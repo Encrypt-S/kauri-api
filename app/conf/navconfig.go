@@ -9,9 +9,12 @@ type DaemonConfig struct {
 // CreateRPCDetails generate rpc details for this run
 func CreateRPCDetails() {
 
-	//NavConf.RPCUser, _ = utils.GenerateRandomString(32)
+	// only changed to hardcoded values for development
 	NavConf.RPCUser = "user"
-	//NavConf.RPCPassword, _ = utils.GenerateRandomString(32)
+	//NavConf.RPCUser, _ = utils.GenerateRandomString(32)
+
+	// only changed to hardcoded values for development
 	NavConf.RPCPassword = "hi"
+	//NavConf.RPCPassword, _ = utils.GenerateRandomString(32)
 
 }

@@ -22,21 +22,7 @@ type RpcResp struct {
 	Message string `json:"message"`
 }
 
-/*
-type RpcRequestData struct {
-	Method string `json:"method"`
-	Args   string `json:"arguments"`
-}
-
-type RpcResp struct {
-	Code    int    `json:"code"`
-	Data    string `json:"data"`
-	Message string `json:"message"`
-}
-
-*/
-
-// RequestDaemon request the data via the daemon's rpc api
+// RequestDaemon request the data via the daemon's RPC api
 // it also allows auto switches between the testnet and live depending on the config
 func RequestDaemon(rpcReqData RpcRequestData, navConf conf.DaemonConfig) (*http.Response, error) {
 
@@ -60,12 +46,10 @@ func RequestDaemon(rpcReqData RpcRequestData, navConf conf.DaemonConfig) (*http.
 	// build the url
 	url := fmt.Sprintf("http://127.0.0.1:%d", port)
 
-	//  build the request
+	// build the request
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonValue))
 	req.SetBasicAuth(username, password)
 	req.Header.Add("Content-Type", "application/json")
-
-	// TODO: Handled 500 errors
 
 	resp, err := client.Do(req)
 
@@ -73,7 +57,7 @@ func RequestDaemon(rpcReqData RpcRequestData, navConf conf.DaemonConfig) (*http.
 
 }
 
-func RpcFailed(err error, w http.ResponseWriter, r *http.Request) {
+func RPCFailed(err error, w http.ResponseWriter, r *http.Request) {
 
 	resp := RpcResp{}
 
@@ -92,23 +76,3 @@ func RpcFailed(err error, w http.ResponseWriter, r *http.Request) {
 
 }
 
-// NotImplemented: this is a generic function for daeomn apis
-func NotImplemented(w http.ResponseWriter, r *http.Request) {
-	//fmt.Fprintf(w, "NAVCoin pi server") // send data to client side
-
-	w.Header().Set("Content-Type", "application/json")
-	resp := RpcResp{}
-
-	w.WriteHeader(http.StatusNotImplemented)
-	resp.Code = http.StatusNotImplemented
-	resp.Message = "Not implemented"
-
-	respJson, err := json.Marshal(resp)
-
-	if err != nil {
-
-	}
-
-	w.Write(respJson)
-
-}
