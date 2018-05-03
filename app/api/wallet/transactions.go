@@ -65,8 +65,8 @@ type GetTxIDParams struct {
 	Addresses []string `json:"addresses"`
 }
 
-// GetTxIdsResp describes Result of RPC response > txid (array)
-type GetTxIdsResp struct {
+// GetTxIDsResp describes Result of RPC response > txid (array)
+type GetTxIDsResp struct {
 	Result []string `json:"result"`
 }
 
@@ -103,7 +103,7 @@ func getRawTransactions() http.Handler {
 			return
 		}
 
-		apiResp.Data = resp
+		apiResp.Data = resp.Results
 
 		apiResp.Send(w)
 
@@ -154,22 +154,22 @@ func getTransactionsForAddresses(addresses []string) ([]Address, error) {
 			return nil, err
 		}
 
-		// for all the txIds from the rpc we need to create a transaction
-		for _, txId := range rpcTxIDsResp.Result {
+		// for all the txIDs from the rpc we need to create a transaction
+		for _, txID := range rpcTxIDsResp.Result {
 
-			rawTx, _ := getRawTx(txId)
-
-			if err != nil {
-				return nil, err
-			}
-
-			verboseTx, _ := getRawTxVerbose(txId)
+			rawTx, _ := getRawTx(txID)
 
 			if err != nil {
 				return nil, err
 			}
 
-			trans := Transaction{TxID: txId, RawTx: rawTx.Result, Verbose: verboseTx}
+			verboseTx, _ := getRawTxVerbose(txID)
+
+			if err != nil {
+				return nil, err
+			}
+
+			trans := Transaction{TxID: txID, RawTx: rawTx.Result, Verbose: verboseTx}
 			addStruct.Transactions = append(addStruct.Transactions, trans)
 
 		}
@@ -182,7 +182,7 @@ func getTransactionsForAddresses(addresses []string) ([]Address, error) {
 }
 
 // getTxIdsRPC takes address and returns array of txids
-func getTxIdsRPC(address string) (GetTxIdsResp, error) {
+func getTxIdsRPC(address string) (GetTxIDsResp, error) {
 
 	getParams := GetTxIDParams{}
 
@@ -195,18 +195,18 @@ func getTxIdsRPC(address string) (GetTxIdsResp, error) {
 	resp, err := daemonrpc.RequestDaemon(n, conf.NavConf)
 
 	if err != nil {
-		return GetTxIdsResp{}, err
+		return GetTxIDsResp{}, err
 	}
 
-	rpcTxIdResults := GetTxIdsResp{}
+	rpcTxIDResults := GetTxIDsResp{}
 
-	err = json.NewDecoder(resp.Body).Decode(&rpcTxIdResults)
+	err = json.NewDecoder(resp.Body).Decode(&rpcTxIDResults)
 
 	if err != nil {
-		return GetTxIdsResp{}, err
+		return GetTxIDsResp{}, err
 	}
 
-	return rpcTxIdResults, nil
+	return rpcTxIDResults, nil
 
 }
 
