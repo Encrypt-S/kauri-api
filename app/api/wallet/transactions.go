@@ -12,6 +12,7 @@ import (
 	"github.com/Encrypt-S/kauri-api/app/conf"
 	"github.com/Encrypt-S/kauri-api/app/daemon/daemonrpc"
 	"github.com/gorilla/mux"
+	"github.com/Encrypt-S/kauri-api/app/daemon"
 )
 
 // InitTransactionHandlers sets up handlers for transaction-related rpc commands
@@ -33,47 +34,10 @@ type Response struct {
 // Result describes each item returned in results array
 type Result struct {
 	Currency  string    `json:"currency"`
-	Addresses []Address `json:"addresses"`
+	Addresses []daemon.Address `json:"addresses"`
 }
 
-// Address describes each item returned in IncomingTxItems array
-type Address struct {
-	Address      string        `json:"address"`
-	Transactions []Transaction `json:"transactions"`
-}
 
-// Transaction describes each item returned in transactions array
-type Transaction struct {
-	TxID    string      `json:"txid"`
-	RawTx   string      `json:"rawtx"`
-	Verbose interface{} `json:"verbose"`
-}
-
-// IncomingTransactions describes the incoming transactions in POST body
-type IncomingTransactions struct {
-	IncomingTxItems []IncomingTxItem `json:"transactions"`
-}
-
-// IncomingTxItem describes incoming transaction items
-type IncomingTxItem struct {
-	Currency  string   `json:"currency"`
-	Addresses []string `json:"addresses"`
-}
-
-// GetTxIDParams describes addresses array params for 'getaddresstxids' RPC call
-type GetTxIDParams struct {
-	Addresses []string `json:"addresses"`
-}
-
-// GetTxIDsResp describes Result of RPC response > txid (array)
-type GetTxIDsResp struct {
-	Result []string `json:"result"`
-}
-
-// GetRawTxResp descibes Result of RPC response > raw (string)
-type GetRawTxResp struct {
-	Result string `json:"result"`
-}
 
 // getRawTransactionsHandler ranges through transactions, returns RPC response data
 func getRawTransactionsHandler() http.Handler {
@@ -81,7 +45,7 @@ func getRawTransactionsHandler() http.Handler {
 
 		apiResp := api.Response{}
 
-		var incomingTxs IncomingTransactions
+		var incomingTxs daemon.IncomingTransactions
 
 		err := json.NewDecoder(r.Body).Decode(&incomingTxs)
 
@@ -112,7 +76,7 @@ func getRawTransactionsHandler() http.Handler {
 }
 
 // buildResponse takes address and returns response data
-func buildResponse(incomingAddreses IncomingTransactions) (Response, error) {
+func buildResponse(incomingAddreses daemon.IncomingTransactions) (Response, error) {
 
 	resp := Response{}
 
@@ -140,13 +104,13 @@ func buildResponse(incomingAddreses IncomingTransactions) (Response, error) {
 }
 
 // getTransactionsForAddresses takes addresses array and returns data for each
-func getTransactionsForAddresses(addresses []string) ([]Address, error) {
+func getTransactionsForAddresses(addresses []string) ([]daemon.Address, error) {
 
-	adds := []Address{}
+	adds := []daemon.Address{}
 
 	for _, addressStr := range addresses {
 
-		addStruct := Address{}
+		addStruct := daemon.Address{}
 		addStruct.Address = addressStr
 		rpcTxIDsResp, err := getTxIdsRPC(addressStr)
 
@@ -169,7 +133,7 @@ func getTransactionsForAddresses(addresses []string) ([]Address, error) {
 				return nil, err
 			}
 
-			trans := Transaction{TxID: txID, RawTx: rawTx.Result, Verbose: verboseTx}
+			trans := daemon.Transaction{TxID: txID, RawTx: rawTx.Result, Verbose: verboseTx}
 			addStruct.Transactions = append(addStruct.Transactions, trans)
 
 		}
@@ -182,28 +146,28 @@ func getTransactionsForAddresses(addresses []string) ([]Address, error) {
 }
 
 // getTxIdsRPC takes address and returns array of txids
-func getTxIdsRPC(address string) (GetTxIDsResp, error) {
+func getTxIdsRPC(address string) (daemon.GetTxIDsResp, error) {
 
-	getParams := GetTxIDParams{}
+	getParams := daemon.GetTxIDParams{}
 
 	getParams.Addresses = append(getParams.Addresses, address)
 
 	n := daemonrpc.RpcRequestData{}
 	n.Method = "getaddresstxids"
-	n.Params = []GetTxIDParams{getParams}
+	n.Params = []daemon.GetTxIDParams{getParams}
 
 	resp, err := daemonrpc.RequestDaemon(n, conf.NavConf)
 
 	if err != nil {
-		return GetTxIDsResp{}, err
+		return daemon.GetTxIDsResp{}, err
 	}
 
-	rpcTxIDResults := GetTxIDsResp{}
+	rpcTxIDResults := daemon.GetTxIDsResp{}
 
 	err = json.NewDecoder(resp.Body).Decode(&rpcTxIDResults)
 
 	if err != nil {
-		return GetTxIDsResp{}, err
+		return daemon.GetTxIDsResp{}, err
 	}
 
 	return rpcTxIDResults, nil
@@ -211,7 +175,7 @@ func getTxIdsRPC(address string) (GetTxIDsResp, error) {
 }
 
 // getRawTx takes txid and returns raw transaction data
-func getRawTx(txid string) (GetRawTxResp, error) {
+func getRawTx(txid string) (daemon.GetRawTxResp, error) {
 
 	n := daemonrpc.RpcRequestData{}
 	n.Method = "getrawtransaction"
@@ -219,17 +183,17 @@ func getRawTx(txid string) (GetRawTxResp, error) {
 
 	resp, err := daemonrpc.RequestDaemon(n, conf.NavConf)
 	if err != nil {
-		return GetRawTxResp{}, err
+		return daemon.GetRawTxResp{}, err
 	}
 
 	bodyBytes, _ := ioutil.ReadAll(resp.Body)
 	var rawData map[string]string
 
 	if err := json.Unmarshal(bodyBytes, &rawData); err != nil {
-		return GetRawTxResp{}, err
+		return daemon.GetRawTxResp{}, err
 	}
 
-	rawResp := GetRawTxResp{}
+	rawResp := daemon.GetRawTxResp{}
 	rawResp.Result = rawData["result"]
 
 	return rawResp, nil

@@ -7,6 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/jarcoal/httpmock.v1"
+	"github.com/Encrypt-S/kauri-api/app/daemon"
 )
 
 // mock data struct for get txids response
@@ -34,7 +35,7 @@ func mockGetRawTxVerboseResponseData() string {
 }
 
 // mock out the data struct for incoming POST body
-func setupIncomingTestData(t *testing.T) IncomingTransactions {
+func setupIncomingTestData(t *testing.T) daemon.IncomingTransactions {
 	data := `
 	{"transactions": [
     {"currency":  "NAV", "addresses": ["NW7uXr4ZAeJKigMGnKbSLfCBQY59cH1T8G", "NUDke42E3fwLqaBbBFRyVSTETuhWAi7ugk"]},
@@ -45,7 +46,7 @@ func setupIncomingTestData(t *testing.T) IncomingTransactions {
 
 	r := bytes.NewReader([]byte(data))
 
-	var incomingAddressesReq IncomingTransactions
+	var incomingAddressesReq daemon.IncomingTransactions
 	json.NewDecoder(r).Decode(&incomingAddressesReq)
 
 	// Preflight checks
