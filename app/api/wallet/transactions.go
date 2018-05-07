@@ -21,7 +21,7 @@ func InitTransactionHandlers(r *mux.Router, prefix string) {
 
 	// get raw transactions endpoint :: provides raw transaction data for supplied wallet addresses
 	getRawTransactionsPath := api.RouteBuilder(prefix, namespace, "v1", "getrawtransactions")
-	api.OpenRouteHandler(getRawTransactionsPath, r, getRawTransactions())
+	api.OpenRouteHandler(getRawTransactionsPath, r, getRawTransactionsHandler())
 
 }
 
@@ -75,8 +75,8 @@ type GetRawTxResp struct {
 	Result string `json:"result"`
 }
 
-// getRawTransactions ranges through transactions, returns RPC response data
-func getRawTransactions() http.Handler {
+// getRawTransactionsHandler ranges through transactions, returns RPC response data
+func getRawTransactionsHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		apiResp := api.Response{}
