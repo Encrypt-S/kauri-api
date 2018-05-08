@@ -1,6 +1,18 @@
 package daemon
 
 
+// Response describes top-level response object
+type Response struct {
+	Results []Result `json:"results"`
+}
+
+// Result describes each item returned in results array
+type Result struct {
+	Currency  string    `json:"currency"`
+	Addresses []Address `json:"addresses"`
+}
+
+
 // Address describes each item returned in IncomingTxItems array
 type Address struct {
 	Address      string        `json:"address"`
