@@ -45,45 +45,50 @@ func buildResponse(incomingAddreses daemon.IncomingTransactions) (Response, erro
 
 
 // GetTransactionsForAddresses takes addresses array and returns data for each
-func GetTransactionsForAddresses(addresses []string) ([]daemon.Address, error) {
+func GetTransactionsForAddresses(addresses IncomingTransactions) ([]daemon.Address, error) {
 
 	adds := []daemon.Address{}
 
-	for _, addressStr := range addresses {
+	for (add) {
+		if (Nav) {
 
-		addStruct := daemon.Address{}
-		addStruct.Address = addressStr
-		rpcTxIDsResp, err := getTxIdsRPC(addressStr)
+			for _, addressStr := range addresses {
 
-		if err != nil {
-			return nil, err
-		}
+				addStruct := daemon.Address{}
+				addStruct.Address = addressStr
+				rpcTxIDsResp, err := getTxIdsRPC(addressStr)
 
-		// for all the txIDs from the rpc we need to create a transaction
-		for _, txID := range rpcTxIDsResp.Result {
+				if err != nil {
+					return nil, err
+				}
 
-			rawTx, _ := getRawTx(txID)
+				// for all the txIDs from the rpc we need to create a transaction
+				for _, txID := range rpcTxIDsResp.Result {
 
-			if err != nil {
-				return nil, err
+					rawTx, _ := getRawTx(txID)
+
+					if err != nil {
+						return nil, err
+					}
+
+					verboseTx, _ := getRawTxVerbose(txID)
+
+					if err != nil {
+						return nil, err
+					}
+
+					trans := daemon.Transaction{TxID: txID, RawTx: rawTx.Result, Verbose: verboseTx}
+					addStruct.Transactions = append(addStruct.Transactions, trans)
+
+				}
+
+				adds = append(adds, addStruct)
 			}
 
-			verboseTx, _ := getRawTxVerbose(txID)
-
-			if err != nil {
-				return nil, err
-			}
-
-			trans := daemon.Transaction{TxID: txID, RawTx: rawTx.Result, Verbose: verboseTx}
-			addStruct.Transactions = append(addStruct.Transactions, trans)
-
 		}
 
-		adds = append(adds, addStruct)
-
+		return adds, nil
 	}
-
-	return adds, nil
 }
 
 

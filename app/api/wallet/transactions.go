@@ -48,7 +48,7 @@ func getRawTransactionsHandler() http.Handler {
 			return
 		}
 
-		res := []daemon.Result{}
+		deamonManager.GetTransctions(incomingTxs)
 
 		//resp, err :=
 
