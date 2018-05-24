@@ -1,18 +1,17 @@
 language: go
 os:
   - linux
-  - osx
 go:
-  - "go1.9"
-  - "go1.10"
+  - "1.10.x"
 go_import_path: github.com/Encrypt-S/kauri-api
-# disable test caching via GOCACHE=off
-env:
-  global:
-    - GOCACHE=off
+before_install:
+  - go get github.com/appleboy/gofightget
+  - go get github.com/stretchr/testify/assert
 install:
   - go get ./...
 before_script:
   - go vet ./...
 script:
   - go test -v -cover ./...
+after_script:
+  - golint ./...
