@@ -1,10 +1,17 @@
 language: go
+
 sudo: required
+
 services:
 - docker
+
 before_install:
 - docker pull
-env:
-  global:
-  - secure: JY3mdqlFbIfP4Od2iPehU7spaD7Yc/KuJWhXpvjaC/BARoMAjDu3ucORQQt8ROR5myLUaFVwB3CsaeZhCHnUEuoD6NNjO2pdyoPHohjKSFunhj5r3J9MSGrUnyHHhv9uxj5kvarjAGoy40qCcjKu99dvRtDbca6BdJXcPNeMyTCzf4aSgX0R6ooARhc0xljKYiqYkuPZd3sY9khPFUXCIYZ+f71lWEcY8rKMkxsM2dO2ddbpDXpTGTW86bfCtRUTcBjuhe5uJ8TY0DMuaddI515V6CRpSJZzVRUCmk+owV8yEyZVt4jq8hLlNsXPk8F9VCMWNZcuPaVpBDaosxPC2lubDeDRWB76hiiHZ8kR891/YlpRtwciRHk4BQTip5woW5ywZXrL0k4dfH42nB6PCR8hp4R8/sixTxe2e4URoa9tJWfsfChEtgJjNvS2HSpo5UcMk74dClzHjJI7BZeA6M1SGGGDKnIcizCy7ZeEryDDyrLBofqWCUesEi/6WItC9RPcJR88nItXietwGkQqFENVpmhEXS1Y3gGmtt7pD0qjUybbTxZvUZtMedDJTRFSR3+uD6LvPJmuJ3oGTP4QQOeZxjHvSa27I9HTaKIU9gYXZSM8wa9n+ZsPmzkcS6XDvaDzC9CvLm6ZY+w6/55qPf0qf5SHxq0IgQOQksEiBkg=
-  - secure: EbIPL0LwngsJSOVVx2SMF5a50zpoWKuOBx4aUzZnGNNEIHdtbjKyNS7MhAyRWUmkNW1a1XM7+DjlbF+DM/i5SlL+GatBvy/EeqSMExR9+Jy7bhuW2TmeqcPWG4zCOHkDtVaEiqLFVOa0OhKLQsbsyP9u6eqvgWgnBM/kNoYQ6U15Q/M7iyhrZlCc4V/nit9C1m/wEuGhFnfd9rZCzGu+vXNwmGl2tNqL/wgQOzHyd5NwQMyhY6c8wUaLfcXnZbwFulIK4pQmiprWjqBaNcHUab+dMTN5UoQi/fDoSNMAfnLNirTgybrcbld0UZBbPpJjoVwMvb9+ANZVFS2sf6EI9xpl3sW7vfxeG0foIQlNDP2ypenc6jVa4ieiRhL85A3bCiDSo5X7Lt5UCxIFp8Dk+/NlYMn763w45xuW4uMKeGR6JHR6nzw4kj6IjqKw9eYU5KW1L8MKAtyy8kmdQt6KLoEKYlzV3vpmlK5lirZvyaNV7fB+ZT23Z7FfUOCnS0VsAw3o+HuIMopBj44/i2lQ/59a8BzIju9hgzj2Vtc47TFOzy1NdHUv9akc3/drCav1Tbj/HXhi4kAhXentlWCld9wNPWJn9TV/4oNyRm+GMQ7sV3HF9T5tu+nn58+M/RP8oL6yyz/9jXFssFQjJhkjBT8LTXKl3uxvm+gZD34opas=
+
+before_script:
+  - go vet ./...
+
+install:
+  # Add Godeps dependencies to GOPATH and PATH
+  - export GOPATH="${TRAVIS_BUILD_DIR}/Godeps/_workspace:$GOPATH"
+  - export PATH="${TRAVIS_BUILD_DIR}/Godeps/_workspace/bin:$PATH"
