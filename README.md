@@ -1,5 +1,6 @@
 # Kauri API
 
-[ ![Codeship Status for Encrypt-S/kauri-api](https://app.codeship.com/projects/d7f6d750-234d-0136-4699-1ad7db1a3943/status?branch=v1.0.0-kauri)](https://app.codeship.com/projects/286091)
+[![Build Status](https://travis-ci.org/Encrypt-S/kauri-api.svg?branch=v1.0.0-kauri)](https://travis-ci.org/Encrypt-S/kauri-api)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-The API for the beautifully simple open-source multi-currency [kauri wallet](https://github.com/Encrypt-S/kauri-wallet).
+The API for the open-source, multi-currency [kauri wallet](https://github.com/Encrypt-S/kauri-wallet).

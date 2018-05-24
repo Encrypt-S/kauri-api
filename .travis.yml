@@ -1,0 +1,15 @@
+language: go
+go:
+  - "1.10.1"
+go_import_path: github.com/Encrypt-S/kauri-api
+install:
+  - go get -t ./...
+before_script:
+  - go vet ./...
+script:
+  - go test ./...
+after_script:
+  - golint ./...
+addons:
+  apt:
+    update: true
