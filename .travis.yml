@@ -10,3 +10,6 @@ script:
   - go test ./...
 after_script:
   - golint ./...
+addons:
+  apt:
+    update: true
