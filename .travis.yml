@@ -1,17 +1,18 @@
 language: go
-
-sudo: required
-
-services:
-- docker
-
-before_install:
-- docker pull
-
+os:
+  - linux
+  - osx
+go:
+  - "go1.9"
+  - "go1.10"
+go_import_path: github.com/Encrypt-S/kauri-api
+# disable test caching via GOCACHE=off
+env:
+  global:
+    - GOCACHE=off
+install:
+  - go get ./...
 before_script:
   - go vet ./...
-
-install:
-  # Add Godeps dependencies to GOPATH and PATH
-  - export GOPATH="${TRAVIS_BUILD_DIR}/Godeps/_workspace:$GOPATH"
-  - export PATH="${TRAVIS_BUILD_DIR}/Godeps/_workspace/bin:$PATH"
+script:
+  - go test -v -cover ./...
