@@ -5,6 +5,7 @@ go:
 go_import_path: github.com/Encrypt-S/kauri-api
 before_install:
   - go get github.com/mattn/goveralls
+  - go get golang.org/x/lint/golint
 install:
   - go get -t ./...
 before_script:
@@ -17,7 +18,7 @@ before_script:
 before_script:
   - go vet ./...
 script:
-  - go test ./...
+  - go test ./... -coverprofile=gover.coverprofile
 after_script:
   - golint ./...
 after_success:
