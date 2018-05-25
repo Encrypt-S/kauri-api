@@ -1,4 +1,3 @@
-
 language: go
 
 sudo: false
@@ -13,6 +12,7 @@ addons:
     update: true
 
 before_install:
+
   # Install code coverage / coveralls tooling
   - go get -u github.com/axw/gocov/gocov
   - go get -u github.com/mattn/goveralls
@@ -34,6 +34,7 @@ install:
   - go get -t ./...
 
 before_script:
+
   # Print build info.
   - echo $TRAVIS_COMMIT
   - echo $TRAVIS_TAG
@@ -64,6 +65,7 @@ script:
   - go list ./... | grep -v vendor | xargs -n1 -I {} -P 4 go test -v -covermode=count -coverprofile=../../../{}/profile.coverprofile {}
 
 after_success:
+
   # Notify Discord build-status channel of success via webhook
   - wget https://raw.githubusercontent.com/k3rn31p4nic/travis-ci-discord-webhook/master/send.sh
   - chmod +x send.sh
@@ -76,6 +78,7 @@ after_success:
   - goveralls -service=travis-ci -coverprofile=gover.coverprofile -repotoken $COVERALLS_TOKEN
 
 after_failure:
+
 # Notify Discord build-status channel of failure via webhook
 - wget https://raw.githubusercontent.com/k3rn31p4nic/travis-ci-discord-webhook/master/send.sh
 - chmod +x send.sh
