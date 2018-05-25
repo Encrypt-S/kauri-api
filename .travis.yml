@@ -1,7 +1,7 @@
 language: go
 sudo: false
 go:
-- "1.10.1"
+- 1.10.1
 go_import_path: github.com/Encrypt-S/kauri-api
 install:
 - go get -t ./...
@@ -12,7 +12,9 @@ before_install:
 - export GOMAXPROCS=1
 - go get github.com/mattn/goveralls
 script:
-- "$GOPATH/bin/goveralls -service=travis-pro"
+- go test -v -covermode=count -coverprofile=coverage.out
+- $(go env GOPATH | awk 'BEGIN{FS=":"} {print $1}')/bin/goveralls -coverprofile=coverage.out
+  -service=travis-ci -repotoken $COVERALLS_TOKEN
 after_script:
 - golint ./...
 addons:
@@ -28,5 +30,4 @@ after_failure:
 - "./send.sh failure $WEBHOOK_URL"
 env:
   global:
-  - secure: eiecCXdRIFfLslKzRxhMU2ZclKtXYZPK7vxbWGJ3LD2iseg6MGHiYKDOtLHW9t7l6FxppFeeG8EzLL/THcAM+tv2zRBUQL1JQa0xfGv6WXopBaoieszwNzMpAhXwGFlBw6nBVGFNhhCxNdZIlMZmyibmkfHNq96Bsj7lMvQcqiib9nPziOKhm3CqBa6jPqlClycPPlBhN++mt7FbaOXdfA3JmOAZFFFr1hvKPepQrB4ZTJ+sTyUDCVvhq9TSiiB2NXHnzkDaAsacdVqwNmRKjYwnVRXMcLeykiJv+kR1tojFX5VVeKTA6JNs/Th2g7m7U37eGNP1P7Hi+fdICI2jWphVw90jEJtyNdo+rVu/87UgwsxGBjQsU3rlC2Y4H9d55UKdoQQCDWDsPpa1Wz2dyXY+z8ExVS3vctAPA0dtbiU6+cwNKO9owVw/+jQjL7PjURIDGgJldI+pBalwGm7IAwuhFmSTp6VvuzMIiPIZrDuiXjm0fSRlKzQdfM69P6gt9AKAzn6qZGjMz416IRTrSAA9bciXkG0Nx9TkImJrmJxjyINymRDjJrnwMR/k//0PtQ05zSwFBYmPamnBxtbSSgyZyuheVih1KPOaTDdDu7RpOytX2RFSH9S2M5p1EbaQvkE5t9QnNb+pEQdw3uC28tMGAdvDT+jIXM+xRI8v5uw=
-  - secure: CNhu4OxmUIA7xyE49pcBJdp1AIq5F+u81tzVhgTuhnKbPmZgciKD1u0c4AM27VMaW+NZf5otpVKA4vqEhnJ09uwisxc9usPi8nzA7HCIDkEagtkIMfpYGC0vXzcFKjoK7vBS4wGFBWJ3iQ7eMOSyGa8VD4NPoh3ScXXFbPprfd51QvuXEyPfHwK256V4c6M2oepiBUXdcgrFHqwnkRMNOSsPvGaKaKUgZiGaMz1cHH//C6qHxnoWNi0DRSg9VmxueesL1yu2RWA9Ww87NCin1WBbnFx0qsK/zVAo5YQIN27LPUtjkXq2uKDcRjzfKiBwkCdeJsf8u3FYFNZu/qlPdmbxlwhaIZb6WmyhqgOTTzecaitGMfp48a9HFKTbgZwvATANzC3MmuWjEQt06jSr1QxQNBy3q1kUMJtxuZi03fHxlG+DMgoYl+iX/l9terjNk5lSkaMH6z7HrAPgRY84eyHiMtWOT1nWnkBdgsuHK9rH7qLUHMy4E0ZIv6XIOpZgkDBPAtqHrP11EFwIcQFowFURL9nqZQG4gj8MGr53DqOMx+IOqHRL7ElTGbKAyqfSW8Tk2SBflLgMryOccXR8zhPEWnCLa7cXz2ME6Yy/0grkR1z10XPd8wzCnQQnf/2nwqU8BImjjQxJnl0sfera77lj67tNMbe9bATddkGONnA=
+    secure: pfgvIn/dxcLiboFyy5EAMpAMXT5bFNhm00XCpITU88c2WhG664v8ym9zi6Oa0R4iO3Ua+Bf52bLdEwjVJVch/Vxb+l4ZzCoGrpavTLdg6dTBe2FKxev1NKQmO7/ZJzVNR38BFQ/AeG6rCXhyChbRhLubsz2CpjLw1eH3qUZjqyPxp4Mx1HrENAjTyqTJN7MEMwFbN5a4wtUqDq7zshh8YL2IB2RvKH0VkT00pp+2K2uNEpGQ4V0AY1x9AB8UJ+dKk9as+qwdWWTjNPIkFLXGXlc6FaWQMtA0WQ/Yua5pxoYKecFJrxMSJEPMNSR/SCd6qsILg9dMUEpsMfLZLPUdMlEu/xN0FPm+vmHxyZQbcyRQZm0IxJu8Y7re9xz9IMy3zF0sRPi2Bm3dxE93jfDkPw/TyuUjX3aJt/ykOf7yCcu2pF0OiH7LoShwYbXzot+a6j6Zg1bviShe7oqCdtP9HgkoMlvb72MKn/9TAj5HR30T2CAOF8rdqIvnrGKu4BuURDAnKaR8dweWThWfr7/kYWce7O76HlcQ8iU5Lnt5hJ7wlyQM6wvk+M/4coRkC4SYFgPHjUwUUzocQI9Oyn5Dw+SBXJT+ViA6GpcpeY8Oa5SlfUWgkupaJEK46GSKlBage/8uz48YbUytFCOsIvM6ZgSI2kjxiIjgTp/Aaokepog=
