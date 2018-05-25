@@ -1,13 +1,33 @@
 language: go
+
 sudo: false
+
 go:
   - 1.10.1
+
 go_import_path: github.com/Encrypt-S/kauri-api
+
 before_install:
-  - go get github.com/mattn/goveralls
-  - go get golang.org/x/lint/golint
+  # Install code coverage / coveralls tooling
+  - go get -u github.com/axw/gocov/gocov
+  - go get -u github.com/mattn/goveralls
+  - go get -u golang.org/x/tools/cmd/cover
+
+  # Install linter
+  - go get -u golang.org/x/lint/golint
+
+  # Install dependency management
+  - go get -u github.com/tools/godep
+
+  # Merge all subpackage code coverage reports into a single report
+  - go get -u github.com/modocache/gover
+
+  # Install cyclomatic dependency analysis tool
+  - go get -u github.com/fzipp/gocyclo
+
 install:
   - go get -t ./...
+
 before_script:
   # Print build info.
   - echo $TRAVIS_COMMIT
@@ -15,24 +35,53 @@ before_script:
   - echo $TRAVIS_BRANCH
   - echo $TRAVIS_BUILD_NUMBER
   - echo $TRAVIS_REPO_SLUG
-before_script:
-  - go vet ./...
+
+  # Test if code was formatted with 'go fmt'
+  # Command will format code and return modified files
+  # fail if any have been modified.
+  - if [ -n "$(go fmt)" ]; then echo 'Code is not formatted with "go fmt"'; false; fi
+
+  # Perform static code analysys
+  - go tool vet -unsafeptr=false `go list ./... | grep -v vendor | sed -e "s,^,$GOPATH/src/,;s,.*:,,"`
+
+  # Fail builds when the cyclomatic complexity reaches 15 or more
+  - gocyclo -over 15 `find . -iname '*.go' | grep -v 'vendor' | grep -v '_test.go'`
+
 script:
-  - go test ./... -coverprofile=gover.coverprofile
+  # go list supply import paths for all sub directories.
+  # Exclude vendor directory, we don't want to run tests and coverage for all dependencies every time,
+  # also including their coverage may introduce to much noice. Concentrate on the coverage of local packages.
+  # Execute go test on every local subpackage (resolved as dependencies) and generate covreage report for each.
+  # Test packages pararell (xargs -P)
+  - go list ./... | grep -v vendor | xargs -n1 -I {} -P 4 go test -v -covermode=count -coverprofile=../../../{}/profile.coverprofile {}
+
+  # Compile binary
+  - go build
+
 after_script:
   - golint ./...
+
 after_success:
+  # Notify Discord build-status channel of success via webhook
   - wget https://raw.githubusercontent.com/k3rn31p4nic/travis-ci-discord-webhook/master/send.sh
   - chmod +x send.sh
   - "./send.sh success $WEBHOOK_URL"
+
+  # Merge all coverage reports located in subdirectories and put them under: gover.coverprofile
+  - gover
+
   # Send code coverage report to coveralls.io only after success
   - goveralls -service=travis-ci -coverprofile=gover.coverprofile -repotoken $COVERALLS_TOKEN
+
 after_failure:
+# Notify Discord build-status channel of failure via webhook
 - wget https://raw.githubusercontent.com/k3rn31p4nic/travis-ci-discord-webhook/master/send.sh
 - chmod +x send.sh
 - "./send.sh failure $WEBHOOK_URL"
+
 env:
-    secure: pfgvIn/dxcLiboFyy5EAMpAMXT5bFNhm00XCpITU88c2WhG664v8ym9zi6Oa0R4iO3Ua+Bf52bLdEwjVJVch/Vxb+l4ZzCoGrpavTLdg6dTBe2FKxev1NKQmO7/ZJzVNR38BFQ/AeG6rCXhyChbRhLubsz2CpjLw1eH3qUZjqyPxp4Mx1HrENAjTyqTJN7MEMwFbN5a4wtUqDq7zshh8YL2IB2RvKH0VkT00pp+2K2uNEpGQ4V0AY1x9AB8UJ+dKk9as+qwdWWTjNPIkFLXGXlc6FaWQMtA0WQ/Yua5pxoYKecFJrxMSJEPMNSR/SCd6qsILg9dMUEpsMfLZLPUdMlEu/xN0FPm+vmHxyZQbcyRQZm0IxJu8Y7re9xz9IMy3zF0sRPi2Bm3dxE93jfDkPw/TyuUjX3aJt/ykOf7yCcu2pF0OiH7LoShwYbXzot+a6j6Zg1bviShe7oqCdtP9HgkoMlvb72MKn/9TAj5HR30T2CAOF8rdqIvnrGKu4BuURDAnKaR8dweWThWfr7/kYWce7O76HlcQ8iU5Lnt5hJ7wlyQM6wvk+M/4coRkC4SYFgPHjUwUUzocQI9Oyn5Dw+SBXJT+ViA6GpcpeY8Oa5SlfUWgkupaJEK46GSKlBage/8uz48YbUytFCOsIvM6ZgSI2kjxiIjgTp/Aaokepog=
+  secure: pfgvIn/dxcLiboFyy5EAMpAMXT5bFNhm00XCpITU88c2WhG664v8ym9zi6Oa0R4iO3Ua+Bf52bLdEwjVJVch/Vxb+l4ZzCoGrpavTLdg6dTBe2FKxev1NKQmO7/ZJzVNR38BFQ/AeG6rCXhyChbRhLubsz2CpjLw1eH3qUZjqyPxp4Mx1HrENAjTyqTJN7MEMwFbN5a4wtUqDq7zshh8YL2IB2RvKH0VkT00pp+2K2uNEpGQ4V0AY1x9AB8UJ+dKk9as+qwdWWTjNPIkFLXGXlc6FaWQMtA0WQ/Yua5pxoYKecFJrxMSJEPMNSR/SCd6qsILg9dMUEpsMfLZLPUdMlEu/xN0FPm+vmHxyZQbcyRQZm0IxJu8Y7re9xz9IMy3zF0sRPi2Bm3dxE93jfDkPw/TyuUjX3aJt/ykOf7yCcu2pF0OiH7LoShwYbXzot+a6j6Zg1bviShe7oqCdtP9HgkoMlvb72MKn/9TAj5HR30T2CAOF8rdqIvnrGKu4BuURDAnKaR8dweWThWfr7/kYWce7O76HlcQ8iU5Lnt5hJ7wlyQM6wvk+M/4coRkC4SYFgPHjUwUUzocQI9Oyn5Dw+SBXJT+ViA6GpcpeY8Oa5SlfUWgkupaJEK46GSKlBage/8uz48YbUytFCOsIvM6ZgSI2kjxiIjgTp/Aaokepog=
+
 addons:
   apt:
     update: true
