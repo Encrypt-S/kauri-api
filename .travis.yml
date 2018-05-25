@@ -11,8 +11,8 @@ before_install:
 - export GOMAXPROCS=1
 - go get github.com/mattn/goveralls
 script:
-- go test ./...
-- "$GOPATH/bin/goveralls -service=travis-ci"
+- go test -v -covermode=count -coverprofile=coverage.out $HOME/gopath/bin/goveralls
+  -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
 after_script:
 - golint ./...
 addons:
@@ -26,3 +26,6 @@ after_failure:
 - wget https://raw.githubusercontent.com/k3rn31p4nic/travis-ci-discord-webhook/master/send.sh
 - chmod +x send.sh
 - "./send.sh failure $WEBHOOK_URL"
+env:
+  global:
+    secure: eiecCXdRIFfLslKzRxhMU2ZclKtXYZPK7vxbWGJ3LD2iseg6MGHiYKDOtLHW9t7l6FxppFeeG8EzLL/THcAM+tv2zRBUQL1JQa0xfGv6WXopBaoieszwNzMpAhXwGFlBw6nBVGFNhhCxNdZIlMZmyibmkfHNq96Bsj7lMvQcqiib9nPziOKhm3CqBa6jPqlClycPPlBhN++mt7FbaOXdfA3JmOAZFFFr1hvKPepQrB4ZTJ+sTyUDCVvhq9TSiiB2NXHnzkDaAsacdVqwNmRKjYwnVRXMcLeykiJv+kR1tojFX5VVeKTA6JNs/Th2g7m7U37eGNP1P7Hi+fdICI2jWphVw90jEJtyNdo+rVu/87UgwsxGBjQsU3rlC2Y4H9d55UKdoQQCDWDsPpa1Wz2dyXY+z8ExVS3vctAPA0dtbiU6+cwNKO9owVw/+jQjL7PjURIDGgJldI+pBalwGm7IAwuhFmSTp6VvuzMIiPIZrDuiXjm0fSRlKzQdfM69P6gt9AKAzn6qZGjMz416IRTrSAA9bciXkG0Nx9TkImJrmJxjyINymRDjJrnwMR/k//0PtQ05zSwFBYmPamnBxtbSSgyZyuheVih1KPOaTDdDu7RpOytX2RFSH9S2M5p1EbaQvkE5t9QnNb+pEQdw3uC28tMGAdvDT+jIXM+xRI8v5uw=
