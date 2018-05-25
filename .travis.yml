@@ -10,7 +10,7 @@ before_install:
   - go get github.com/mattn/goveralls
 script:
   - go test ./...
-  - $HOME/gopath/bin/goveralls -v -service=travis-ci
+  - $GOPATH/bin/goveralls -service=travis-ci
 after_script:
   - golint ./...
 addons:
