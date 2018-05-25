@@ -1,3 +1,4 @@
+
 language: go
 
 sudo: false
@@ -6,6 +7,10 @@ go:
   - 1.10.1
 
 go_import_path: github.com/Encrypt-S/kauri-api
+
+addons:
+  apt:
+    update: true
 
 before_install:
   # Install code coverage / coveralls tooling
@@ -36,6 +41,9 @@ before_script:
   - echo $TRAVIS_BUILD_NUMBER
   - echo $TRAVIS_REPO_SLUG
 
+  # Lint project
+  - golint ./...
+
   # Test if code was formatted with 'go fmt'
   # Command will format code and return modified files
   # fail if any have been modified.
@@ -54,12 +62,6 @@ script:
   # Execute go test on every local subpackage (resolved as dependencies) and generate covreage report for each.
   # Test packages pararell (xargs -P)
   - go list ./... | grep -v vendor | xargs -n1 -I {} -P 4 go test -v -covermode=count -coverprofile=../../../{}/profile.coverprofile {}
-
-  # Compile binary
-  - go build
-
-after_script:
-  - golint ./...
 
 after_success:
   # Notify Discord build-status channel of success via webhook
@@ -82,6 +84,4 @@ after_failure:
 env:
   secure: pfgvIn/dxcLiboFyy5EAMpAMXT5bFNhm00XCpITU88c2WhG664v8ym9zi6Oa0R4iO3Ua+Bf52bLdEwjVJVch/Vxb+l4ZzCoGrpavTLdg6dTBe2FKxev1NKQmO7/ZJzVNR38BFQ/AeG6rCXhyChbRhLubsz2CpjLw1eH3qUZjqyPxp4Mx1HrENAjTyqTJN7MEMwFbN5a4wtUqDq7zshh8YL2IB2RvKH0VkT00pp+2K2uNEpGQ4V0AY1x9AB8UJ+dKk9as+qwdWWTjNPIkFLXGXlc6FaWQMtA0WQ/Yua5pxoYKecFJrxMSJEPMNSR/SCd6qsILg9dMUEpsMfLZLPUdMlEu/xN0FPm+vmHxyZQbcyRQZm0IxJu8Y7re9xz9IMy3zF0sRPi2Bm3dxE93jfDkPw/TyuUjX3aJt/ykOf7yCcu2pF0OiH7LoShwYbXzot+a6j6Zg1bviShe7oqCdtP9HgkoMlvb72MKn/9TAj5HR30T2CAOF8rdqIvnrGKu4BuURDAnKaR8dweWThWfr7/kYWce7O76HlcQ8iU5Lnt5hJ7wlyQM6wvk+M/4coRkC4SYFgPHjUwUUzocQI9Oyn5Dw+SBXJT+ViA6GpcpeY8Oa5SlfUWgkupaJEK46GSKlBage/8uz48YbUytFCOsIvM6ZgSI2kjxiIjgTp/Aaokepog=
 
-addons:
-  apt:
-    update: true
+
