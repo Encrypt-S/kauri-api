@@ -8,13 +8,10 @@ install:
 before_script:
 - go vet ./...
 before_install:
-- export COVERALLS_PARALLEL=false
-- export GOMAXPROCS=1
 - go get github.com/mattn/goveralls
 script:
 - go test -v -covermode=count -coverprofile=coverage.out
-- $(go env GOPATH | awk 'BEGIN{FS=":"} {print $1}')/bin/goveralls -coverprofile=coverage.out
-  -service=travis-ci -repotoken $COVERALLS_TOKEN
+- $HOME/gopath/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
 after_script:
 - golint ./...
 addons:
