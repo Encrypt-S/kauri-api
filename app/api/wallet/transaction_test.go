@@ -98,7 +98,7 @@ func Test_getTransactionsForAddress(t *testing.T) {
 
 	incomingAddresses := setupIncomingTestData(t)
 
-	adds, _ := getTransactionsForAddresses(incomingAddresses.IncomingTxItems[0].Addresses)
+	adds, _ := getTxForAddresses(incomingAddresses.IncomingTxItems[0].Addresses)
 
 	// check we have the right amount of addresses
 	assert.Equal(t, 2, len(adds))

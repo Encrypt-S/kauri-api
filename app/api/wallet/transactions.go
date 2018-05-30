@@ -14,14 +14,14 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// InitTransactionHandlers sets up handlers for transaction-related rpc commands
-func InitTransactionHandlers(r *mux.Router, prefix string) {
+// InitTxHandlers sets up handlers for transaction-related rpc commands
+func InitTxHandlers(r *mux.Router, prefix string) {
 
 	namespace := "transactions"
 
 	// get raw transactions endpoint :: provides raw transaction data for supplied wallet addresses
 	getRawTransactionsPath := api.RouteBuilder(prefix, namespace, "v1", "getrawtransactions")
-	api.OpenRouteHandler(getRawTransactionsPath, r, getRawTransactionsHandler())
+	api.OpenRouteHandler(getRawTransactionsPath, r, getRawTxHandler())
 
 }
 
@@ -75,8 +75,8 @@ type GetRawTxResp struct {
 	Result string `json:"result"`
 }
 
-// getRawTransactionsHandler ranges through transactions, returns RPC response data
-func getRawTransactionsHandler() http.Handler {
+// getRawTxHandler ranges through transactions, returns RPC response data
+func getRawTxHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		apiResp := api.Response{}
@@ -126,7 +126,7 @@ func buildResponse(incomingAddreses IncomingTransactions) (Response, error) {
 			result.Currency = "NAV"
 
 			// get transaction related to the address and store them in the result
-			result.Addresses, _ = getTransactionsForAddresses(item.Addresses)
+			result.Addresses, _ = getTxForAddresses(item.Addresses)
 
 			// append the result to the array of results
 			resp.Results = append(resp.Results, result)
@@ -139,8 +139,8 @@ func buildResponse(incomingAddreses IncomingTransactions) (Response, error) {
 
 }
 
-// getTransactionsForAddresses takes addresses array and returns data for each
-func getTransactionsForAddresses(addresses []string) ([]Address, error) {
+// getTxForAddresses takes addresses array and returns data for each
+func getTxForAddresses(addresses []string) ([]Address, error) {
 
 	adds := []Address{}
 

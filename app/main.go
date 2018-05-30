@@ -70,7 +70,7 @@ func main() {
 	*/
 
 	// init the transaction handlers
-	wallet.InitTransactionHandlers(router, "api")
+	wallet.InitTxHandlers(router, "api")
 
 	// Start http server
 	port := fmt.Sprintf(":%d", serverConfig.ManagerAPIPort)
