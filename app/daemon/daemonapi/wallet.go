@@ -1,102 +1,95 @@
 package daemonapi
 
-import (
-	"fmt"
-	"io/ioutil"
-	"net/http"
-
-	"encoding/json"
-
-	"github.com/Encrypt-S/kauri-api/app/api"
-	"github.com/Encrypt-S/kauri-api/app/conf"
-	"github.com/Encrypt-S/kauri-api/app/daemon/daemonrpc"
-	"github.com/muesli/crunchy"
-)
-
 // InitWalletHandlers sets up handlers for the blockchain rpc interface
 //func InitWalletHandlers(r *mux.Router, prefix string) {
 
-	//namespace := "wallet"
+//namespace := "wallet"
 
-	// setup getstakereport
-	//stakeReportPath := api.RouteBuilder(prefix, namespace, "v1", "stakeReport")
-	//api.ProtectedRouteHandler(stakeReportPath, r, stakeReport(), http.MethodGet)
+// setup getstakereport
+//stakeReportPath := api.RouteBuilder(prefix, namespace, "v1", "stakeReport")
+//api.ProtectedRouteHandler(stakeReportPath, r, stakeReport(), http.MethodGet)
 
-	// setup encryptwallet
-	//encryptWalletPath := api.RouteBuilder(prefix, namespace, "v1", "encryptwallet")
-	//api.ProtectedRouteHandler(encryptWalletPath, r, encryptWallet(), http.MethodPost)
+// setup encryptwallet
+//encryptWalletPath := api.RouteBuilder(prefix, namespace, "v1", "encryptwallet")
+//api.ProtectedRouteHandler(encryptWalletPath, r, encryptWallet(), http.MethodPost)
 
 //}
 
 // checkPasswordStrength ensures password entered is safe
-func checkPasswordStrength(pass string) error {
-
-	validator := crunchy.NewValidator()
-	err := validator.Check(pass)
-
-	return err
-
-}
+//func checkPasswordStrength(pass string) error {
+//
+//	validator := crunchy.NewValidator()
+//	err := validator.Check(pass)
+//
+//	return err
+//
+//}
 
 // EncryptWalletCmd defines the "encryptwallet" JSON-RPC command.
-type EncryptWalletCmd struct {
-	PassPhrase string `json:"passPhrase"`
-}
+//type EncryptWalletCmd struct {
+//	PassPhrase string `json:"passPhrase"`
+//}
 
 // encryptWallet executes "encryptwallet" json RPC command.
-func encryptWallet() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		var encryptWalletCmd EncryptWalletCmd
-		apiResp := api.Response{}
-
-		err := json.NewDecoder(r.Body).Decode(&encryptWalletCmd)
-
-		if err != nil {
-
-			w.WriteHeader(http.StatusInternalServerError)
-
-			returnErr := api.AppRespErrors.ServerError
-			returnErr.ErrorMessage = fmt.Sprintf("Server error: %v", err)
-			apiResp.Errors = append(apiResp.Errors, returnErr)
-			apiResp.Send(w)
-
-			return
-
-		}
-
-		err = checkPasswordStrength(encryptWalletCmd.PassPhrase)
-
-		if err != nil {
-
-			w.WriteHeader(http.StatusBadRequest)
-
-			returnErr := api.AppRespErrors.InvalidStrength
-			returnErr.ErrorMessage = fmt.Sprintf("Invalid strength error: %v", err)
-			apiResp.Errors = append(apiResp.Errors, returnErr)
-			apiResp.Send(w)
-
-			return
-
-		}
-
-		n := daemonrpc.RPCRequestData{}
-		n.Method = "encryptwallet"
-		n.Params = []string{encryptWalletCmd.PassPhrase}
-
-		resp, err := daemonrpc.RequestDaemon(n, conf.NavConf)
-
-		if err != nil {
-			daemonrpc.RPCFailed(err, w)
-			return
-		}
-
-		bodyText, err := ioutil.ReadAll(resp.Body)
-		w.WriteHeader(resp.StatusCode)
-		w.Write(bodyText)
-
-	})
-}
+//func encryptWallet() http.Handler {
+//	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+//
+//		var encryptWalletCmd EncryptWalletCmd
+//		apiResp := api.Response{}
+//
+//		err := json.NewDecoder(r.Body).Decode(&encryptWalletCmd)
+//
+//		if err != nil {
+//
+//			w.WriteHeader(http.StatusInternalServerError)
+//
+//			returnErr := api.AppRespErrors.ServerError
+//			returnErr.ErrorMessage = fmt.Sprintf("Server error: %v", err)
+//			apiResp.Errors = append(apiResp.Errors, returnErr)
+//			apiResp.Send(w)
+//
+//			return
+//
+//		}
+//
+//		err = checkPasswordStrength(encryptWalletCmd.PassPhrase)
+//
+//		if err != nil {
+//
+//			w.WriteHeader(http.StatusBadRequest)
+//
+//			returnErr := api.AppRespErrors.InvalidStrength
+//			returnErr.ErrorMessage = fmt.Sprintf("Invalid strength error: %v", err)
+//			apiResp.Errors = append(apiResp.Errors, returnErr)
+//			apiResp.Send(w)
+//
+//			return
+//
+//		}
+//
+//		n := daemonrpc.RPCRequestData{}
+//		n.Method = "encryptwallet"
+//		n.Params = []string{encryptWalletCmd.PassPhrase}
+//
+//		resp, err := daemonrpc.RequestDaemon(n, conf.NavConf)
+//
+//		if err != nil {
+//			daemonrpc.RPCFailed(err, w)
+//			return
+//		}
+//
+//		bodyText, err := ioutil.ReadAll(resp.Body)
+//
+//		if err != nil {
+//			log.Println("Failed to read resp.Body: " + err.Error())
+//			return
+//		}
+//
+//		w.WriteHeader(resp.StatusCode)
+//		w.Write(bodyText)
+//
+//	})
+//}
 
 // getstakereport: return SubTotal of the staked coin in last 24H, 7 days, etc.. of all owns address
 //func stakeReport() http.Handler {
