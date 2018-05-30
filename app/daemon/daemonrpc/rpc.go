@@ -11,20 +11,22 @@ import (
 	"github.com/Encrypt-S/kauri-api/app/conf"
 )
 
-type RpcRequestData struct {
+// RPCRequestData defines method and params
+type RPCRequestData struct {
 	Method string      `json:"method"`
 	Params interface{} `json:"params"`
 }
 
-type RpcResp struct {
+// RPCResponse defines code, data, and message
+type RPCResponse struct {
 	Code    int    `json:"code"`
 	Data    string `json:"data"`
 	Message string `json:"message"`
 }
 
-// RequestDaemon request the data via the daemon's RPC api
-// it also allows auto switches between the testnet and live depending on the config
-func RequestDaemon(rpcReqData RpcRequestData, navConf conf.DaemonConfig) (*http.Response, error) {
+// RequestDaemon requests the data via the daemon's RPC api
+// allows auto switches between the testnet and live depending on the config
+func RequestDaemon(rpcReqData RPCRequestData, navConf conf.DaemonConfig) (*http.Response, error) {
 
 	serverConf := conf.ServerConf
 
@@ -57,22 +59,22 @@ func RequestDaemon(rpcReqData RpcRequestData, navConf conf.DaemonConfig) (*http.
 
 }
 
-func RPCFailed(err error, w http.ResponseWriter, r *http.Request) {
+// RPCFailed handles errors encountered when requesting daemon
+func RPCFailed(err error, w http.ResponseWriter) {
 
-	resp := RpcResp{}
+	resp := RPCResponse{}
 
 	w.WriteHeader(http.StatusFailedDependency)
 	resp.Code = http.StatusFailedDependency
 	resp.Message = "Failed to run command: " + err.Error()
 	log.Fatal("Failed to run command: " + err.Error())
 
-	respJson, err := json.Marshal(resp)
+	respJSON, err := json.Marshal(resp)
 
 	if err != nil {
 
 	}
 
-	w.Write(respJson)
+	w.Write(respJSON)
 
 }
-

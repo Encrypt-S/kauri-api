@@ -188,7 +188,7 @@ func getTxIdsRPC(address string) (GetTxIDsResp, error) {
 
 	getParams.Addresses = append(getParams.Addresses, address)
 
-	n := daemonrpc.RpcRequestData{}
+	n := daemonrpc.RPCRequestData{}
 	n.Method = "getaddresstxids"
 	n.Params = []GetTxIDParams{getParams}
 
@@ -213,7 +213,7 @@ func getTxIdsRPC(address string) (GetTxIDsResp, error) {
 // getRawTx takes txid and returns raw transaction data
 func getRawTx(txid string) (GetRawTxResp, error) {
 
-	n := daemonrpc.RpcRequestData{}
+	n := daemonrpc.RPCRequestData{}
 	n.Method = "getrawtransaction"
 	n.Params = []string{txid}
 
@@ -239,7 +239,7 @@ func getRawTx(txid string) (GetRawTxResp, error) {
 // getRawTxVerbose takes txid and returns verbose transaction data
 func getRawTxVerbose(txid string) (interface{}, error) {
 
-	n := daemonrpc.RpcRequestData{}
+	n := daemonrpc.RPCRequestData{}
 	n.Method = "getrawtransaction"
 	n.Params = []interface{}{txid, 1}
 

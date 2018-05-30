@@ -9,9 +9,9 @@ import (
 	"runtime"
 
 	"github.com/Encrypt-S/kauri-api/app/api"
+	"github.com/Encrypt-S/kauri-api/app/api/wallet"
 	"github.com/Encrypt-S/kauri-api/app/conf"
 	"github.com/gorilla/mux"
-	"github.com/Encrypt-S/kauri-api/app/api/wallet"
 )
 
 func main() {
@@ -82,6 +82,5 @@ func initMain() {
 
 	api.BuildAppErrors()
 	conf.CreateRPCDetails()
-
 
 }
