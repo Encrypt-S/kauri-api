@@ -11,9 +11,12 @@ type Adapter func(http.Handler) http.Handler
 // and return a new (wrapped) http.Handler to use in its place
 // To make the adapters run in the order in which they are specified
 // you could reverse through them in the Adapt function
-
 // in essence, this middleware allows us to run code before
 // and/or after our handler code in a HTTP request lifecycle
+
+// Adapt function iterates over all adapters
+// calling them one by one (in reverse order) in a chained manner
+// returning the result of the first adapter.
 func Adapt(h http.Handler, adapters ...Adapter) http.Handler {
 	for _, adapter := range adapters {
 		h = adapter(h)

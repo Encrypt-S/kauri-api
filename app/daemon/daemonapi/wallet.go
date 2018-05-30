@@ -10,12 +10,11 @@ import (
 	"github.com/Encrypt-S/kauri-api/app/api"
 	"github.com/Encrypt-S/kauri-api/app/conf"
 	"github.com/Encrypt-S/kauri-api/app/daemon/daemonrpc"
-	"github.com/gorilla/mux"
 	"github.com/muesli/crunchy"
 )
 
 // InitWalletHandlers sets up handlers for the blockchain rpc interface
-func InitWalletHandlers(r *mux.Router, prefix string) {
+//func InitWalletHandlers(r *mux.Router, prefix string) {
 
 	//namespace := "wallet"
 
@@ -27,7 +26,7 @@ func InitWalletHandlers(r *mux.Router, prefix string) {
 	//encryptWalletPath := api.RouteBuilder(prefix, namespace, "v1", "encryptwallet")
 	//api.ProtectedRouteHandler(encryptWalletPath, r, encryptWallet(), http.MethodPost)
 
-}
+//}
 
 // checkPasswordStrength ensures password entered is safe
 func checkPasswordStrength(pass string) error {
@@ -81,14 +80,14 @@ func encryptWallet() http.Handler {
 
 		}
 
-		n := daemonrpc.RpcRequestData{}
+		n := daemonrpc.RPCRequestData{}
 		n.Method = "encryptwallet"
 		n.Params = []string{encryptWalletCmd.PassPhrase}
 
 		resp, err := daemonrpc.RequestDaemon(n, conf.NavConf)
 
 		if err != nil {
-			daemonrpc.RPCFailed(err, w, r)
+			daemonrpc.RPCFailed(err, w)
 			return
 		}
 
@@ -100,25 +99,25 @@ func encryptWallet() http.Handler {
 }
 
 // getstakereport: return SubTotal of the staked coin in last 24H, 7 days, etc.. of all owns address
-func stakeReport() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		n := daemonrpc.RpcRequestData{}
-		n.Method = "getstakereport"
-
-		resp, err := daemonrpc.RequestDaemon(n, conf.NavConf)
-
-		// Handle errors requesting the daemon
-		if err != nil {
-			daemonrpc.RPCFailed(err, w, r)
-			return
-		}
-
-		bodyText, err := ioutil.ReadAll(resp.Body)
-		w.WriteHeader(resp.StatusCode)
-		w.Write(bodyText)
-
-		return
-
-	})
-}
+//func stakeReport() http.Handler {
+//	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+//
+//		n := daemonrpc.RPCRequestData{}
+//		n.Method = "getstakereport"
+//
+//		resp, err := daemonrpc.RequestDaemon(n, conf.NavConf)
+//
+//		// Handle errors requesting the daemon
+//		if err != nil {
+//			daemonrpc.RPCFailed(err, w, r)
+//			return
+//		}
+//
+//		bodyText, err := ioutil.ReadAll(resp.Body)
+//		w.WriteHeader(resp.StatusCode)
+//		w.Write(bodyText)
+//
+//		return
+//
+//	})
+//}

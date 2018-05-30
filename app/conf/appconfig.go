@@ -19,6 +19,7 @@ type AppConfig struct {
 	Coins             []Coins  `json:"coins"`
 }
 
+// Coins defines structure of supported coin data
 type Coins struct {
 	DaemonVersion    string `json:"daemonVersion"`
 	CurrencyCode     string `json:"currencyCode"`

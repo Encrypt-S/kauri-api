@@ -59,19 +59,21 @@ func BuildAppErrors() {
 	AppRespErrors.JSONDecodeError = errorCode{"JSON_DECODE_ERROR", "Unable to decode JSON"}
 }
 
+// RouteBuilder takes prefix, namespace, version, and method params :: returns formatted route
 func RouteBuilder(prefix string, namespace string, version string, method string) string {
 	route := fmt.Sprintf("/%s/%s/%s/%s", prefix, namespace, version, method)
 	log.Println(route)
 	return route
 }
 
+// OpenRouteHandler is utilised for unprotected routes (non-JWT)
 func OpenRouteHandler(path string, r *mux.Router, f http.Handler) {
 	r.Handle(path, middleware.Adapt(f, middleware.CORSHandler()))
 }
 
-//func ProtectedRouteHandler(path string, r *mux.Router, f http.Handler, method string) {
-//  r.Handle(path, middleware.Adapt(f,
-//    middleware.CORSHandler(),
-//    middleware.JwtHandler())).
-//    Methods(method)
-//}
+// func ProtectedRouteHandler(path string, r *mux.Router, f http.Handler, method string) {
+// 	r.Handle(path, middleware.Adapt(f,
+// 		middleware.CORSHandler(),
+// 		middleware.JwtHandler())).
+// 		Methods(method)
+// }
