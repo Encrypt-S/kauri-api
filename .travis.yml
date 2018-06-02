@@ -2,6 +2,9 @@ language: go
 
 sudo: false
 
+notifications:
+  email: false
+
 go:
   - 1.9.5
   - 1.10.x
