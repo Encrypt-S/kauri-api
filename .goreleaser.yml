@@ -1,0 +1,10 @@
+# Customise builds
+builds:
+    main: ./app/main.go
+  - binary: kauri-api
+    goos:
+      - windows
+      - darwin
+      - linux
+    goarch:
+      - amd64
