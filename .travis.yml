@@ -86,6 +86,7 @@ after_failure:
 
 # Customise builds
 builds:
+    main: ./app/main.go
   - binary: kauri-api
     goos:
       - windows
