@@ -1,10 +1,38 @@
-# Customise builds
 builds:
-  - main: ./app/main.go
-  - binary: kauri-api
-    goos:
-      - windows
-      - darwin
-      - linux
-    goarch:
-      - amd64
+- main: ./app/main
+  env:
+  - CGO_ENABLED=0
+  goos:
+  - linux
+  - darwin
+  goarch:
+  - amd64
+  binary: kauri-api-{{Date}}-{{Tag}}
+  flags:
+    - -tags
+    - dev
+- env:
+  - CGO_ENABLED=0
+archive:
+  name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+  replacements:
+    darwin: Darwin
+    linux: Linux
+    windows: Windows
+    386: i386
+    amd64: x86_64
+  wrap_in_directory: true
+  format_overrides:
+    - goos: windows
+      format: zip
+checksum:
+  name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
+snapshot:
+  name_template: SNAPSHOT-{{.Commit}}
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - Merge
+sign:
+   artifacts: checksum
