@@ -3,7 +3,13 @@ language: go
 sudo: false
 
 go:
-  - 1.10.1
+  - 1.9.5
+  - 1.10.x
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - go: tip
 
 go_import_path: github.com/Encrypt-S/kauri-api
 
@@ -84,6 +90,29 @@ after_failure:
 - wget https://raw.githubusercontent.com/k3rn31p4nic/travis-ci-discord-webhook/master/send.sh
 - chmod +x send.sh
 - "./send.sh failure $WEBHOOK_URL"
+
+# Customise builds
+builds:
+  - main: ./app/main.go
+  - binary: kauri-api
+    goos:
+      - windows
+      - darwin
+      - linux
+    goarch:
+      - amd64
+
+# Initiate deploy sequence via goreleaser
+deploy:
+- provider: script
+  skip_cleanup: true
+  script: curl -sL https://git.io/goreleaser | bash
+  on:
+    tags: true
+    condition: $TRAVIS_OS_NAME = linux
+
+notifications:
+  email: false
 
 env:
   secure: pfgvIn/dxcLiboFyy5EAMpAMXT5bFNhm00XCpITU88c2WhG664v8ym9zi6Oa0R4iO3Ua+Bf52bLdEwjVJVch/Vxb+l4ZzCoGrpavTLdg6dTBe2FKxev1NKQmO7/ZJzVNR38BFQ/AeG6rCXhyChbRhLubsz2CpjLw1eH3qUZjqyPxp4Mx1HrENAjTyqTJN7MEMwFbN5a4wtUqDq7zshh8YL2IB2RvKH0VkT00pp+2K2uNEpGQ4V0AY1x9AB8UJ+dKk9as+qwdWWTjNPIkFLXGXlc6FaWQMtA0WQ/Yua5pxoYKecFJrxMSJEPMNSR/SCd6qsILg9dMUEpsMfLZLPUdMlEu/xN0FPm+vmHxyZQbcyRQZm0IxJu8Y7re9xz9IMy3zF0sRPi2Bm3dxE93jfDkPw/TyuUjX3aJt/ykOf7yCcu2pF0OiH7LoShwYbXzot+a6j6Zg1bviShe7oqCdtP9HgkoMlvb72MKn/9TAj5HR30T2CAOF8rdqIvnrGKu4BuURDAnKaR8dweWThWfr7/kYWce7O76HlcQ8iU5Lnt5hJ7wlyQM6wvk+M/4coRkC4SYFgPHjUwUUzocQI9Oyn5Dw+SBXJT+ViA6GpcpeY8Oa5SlfUWgkupaJEK46GSKlBage/8uz48YbUytFCOsIvM6ZgSI2kjxiIjgTp/Aaokepog=
