@@ -67,12 +67,6 @@
   revision = "bb74f1db0675b241733089d5a1faa5dd8b0ef57b"
 
 [[projects]]
-  name = "github.com/muesli/crunchy"
-  packages = ["."]
-  revision = "298ccf363dc2cda2cecde381494bbcff09843005"
-  version = "v0.1"
-
-[[projects]]
   name = "github.com/pelletier/go-toml"
   packages = ["."]
   revision = "acdc4509485b587f5e675510c4f2c63e90ff68a8"
@@ -125,12 +119,6 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/xrash/smetrics"
-  packages = ["."]
-  revision = "a3153f7040e90324c58c6287535e26a0ac5c1cc1"
-
-[[projects]]
-  branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
   revision = "159ae71589f303f9fbfd7528413e0fe944b9c1cb"
@@ -172,6 +160,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "55aba56843cb12cba5830e2cbb3e6a47d56774a68b73d27f3bdd97eb6d3bed0c"
+  inputs-digest = "70bbb861d91c136e9b92afb599e94dc1ffdc2561030cb83d8e42fd26c319cf81"
   solver-name = "gps-cdcl"
   solver-version = 1
