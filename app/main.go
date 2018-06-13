@@ -39,35 +39,11 @@ func main() {
 	//load the dev config file if one is set
 	conf.LoadDevConfig()
 
-	// setup the router and the api
+	// setup the router
 	router := mux.NewRouter()
+
+	// setup the api
 	api.InitMetaHandlers(router, "api")
-
-	//daemon.StartManager()
-
-	/*
-		// check to see if we have a defined running config
-		// If not we are only going to boot the setup apis, otherwise we will start the app
-		if conf.AppConf.RunningNavVersion == "" {
-
-			log.Println("No App Config starting the setup api")
-			setupapi.InitSetupHandlers(router, "api")
-
-		} else {
-
-			log.Println("App config found :: booting all apis!")
-			// we have a user config so start the app in running mode
-			// TODO: make dependent on the dev config
-			daemon.StartManager()
-
-			// stat all app API's
-			managerapi.InitManagerhandlers(router, "api")
-			daemonapi.InitChainHandlers(router, "api")
-			daemonapi.InitWalletHandlers(router, "api")
-			user.InitSetupHandlers(router, "api")
-
-		}
-	*/
 
 	// init the transaction handlers
 	wallet.InitTxHandlers(router, "api")
