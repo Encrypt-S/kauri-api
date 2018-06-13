@@ -25,7 +25,7 @@ func InitTxHandlers(r *mux.Router, prefix string) {
 
 }
 
-// TxResponse describes top-level response object
+// TxResponse is the top-level response object
 type TxResponse struct {
 	Results []WalletResult `json:"results"`
 }
@@ -49,28 +49,28 @@ type Transaction struct {
 	Verbose interface{} `json:"verbose"`
 }
 
-// IncomingTransactions describes the incoming transactions in POST body
+// IncomingTransactions are the incoming transactions in POST body
 type IncomingTransactions struct {
 	IncomingTxItems []WalletItem `json:"transactions"`
 }
 
-// WalletItem includes incoming currency and corresponding addresses
+// WalletItem is the incoming currency and corresponding addresses
 type WalletItem struct {
 	Currency  string   `json:"currency"`
 	Addresses []string `json:"addresses"`
 }
 
-// GetTxIDParams describes addresses array params for 'getaddresstxids' RPC call
+// GetTxIDParams are the addresses array params for 'getaddresstxids' RPC call
 type GetTxIDParams struct {
 	Addresses []string `json:"addresses"`
 }
 
-// GetTxIDsResp describes WalletResult of RPC response > txid (array)
+// GetTxIDsResp is the Result of RPC response > txid (array)
 type GetTxIDsResp struct {
 	Result []string `json:"result"`
 }
 
-// GetRawTxResp descibes WalletResult of RPC response > raw (string)
+// GetRawTxResp is the Result of RPC response > raw (string)
 type GetRawTxResp struct {
 	Result string `json:"result"`
 }
