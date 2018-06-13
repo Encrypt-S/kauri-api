@@ -25,24 +25,24 @@ func InitTxHandlers(r *mux.Router, prefix string) {
 
 }
 
-// Response describes top-level response object
-type Response struct {
-	Results []Result `json:"results"`
+// TxResponse describes top-level response object
+type TxResponse struct {
+	Results []WalletResult `json:"results"`
 }
 
-// Result describes each item returned in results array
-type Result struct {
-	Currency  string    `json:"currency"`
-	Addresses []Address `json:"addresses"`
+// WalletResult is all transactions for array of address by currency
+type WalletResult struct {
+	Currency  string                `json:"currency"`
+	Addresses []AddressTransactions `json:"addresses"`
 }
 
-// Address describes each item returned in IncomingTxItems array
-type Address struct {
+// AddressTransactions contains array of transactions for address
+type AddressTransactions struct {
 	Address      string        `json:"address"`
 	Transactions []Transaction `json:"transactions"`
 }
 
-// Transaction describes each item returned in transactions array
+// Transaction contains txid, raw transactions txid, verbose boolean
 type Transaction struct {
 	TxID    string      `json:"txid"`
 	RawTx   string      `json:"rawtx"`
@@ -51,11 +51,11 @@ type Transaction struct {
 
 // IncomingTransactions describes the incoming transactions in POST body
 type IncomingTransactions struct {
-	IncomingTxItems []IncomingTxItem `json:"transactions"`
+	IncomingTxItems []WalletItem `json:"transactions"`
 }
 
-// IncomingTxItem describes incoming transaction items
-type IncomingTxItem struct {
+// WalletItem includes incoming currency and corresponding addresses
+type WalletItem struct {
 	Currency  string   `json:"currency"`
 	Addresses []string `json:"addresses"`
 }
@@ -65,12 +65,12 @@ type GetTxIDParams struct {
 	Addresses []string `json:"addresses"`
 }
 
-// GetTxIDsResp describes Result of RPC response > txid (array)
+// GetTxIDsResp describes WalletResult of RPC response > txid (array)
 type GetTxIDsResp struct {
 	Result []string `json:"result"`
 }
 
-// GetRawTxResp descibes Result of RPC response > raw (string)
+// GetRawTxResp descibes WalletResult of RPC response > raw (string)
 type GetRawTxResp struct {
 	Result string `json:"result"`
 }
@@ -97,7 +97,7 @@ func getRawTxHandler() http.Handler {
 
 		if err != nil {
 			returnErr := api.AppRespErrors.RPCResponseError
-			returnErr.ErrorMessage = fmt.Sprintf("Response error: %v", err)
+			returnErr.ErrorMessage = fmt.Sprintf("TxResponse error: %v", err)
 			apiResp.Errors = append(apiResp.Errors, returnErr)
 			apiResp.Send(w)
 			return
@@ -112,9 +112,9 @@ func getRawTxHandler() http.Handler {
 }
 
 // buildResponse takes address and returns response data
-func buildResponse(incomingAddreses IncomingTransactions) (Response, error) {
+func buildResponse(incomingAddreses IncomingTransactions) (TxResponse, error) {
 
-	resp := Response{}
+	resp := TxResponse{}
 
 	// loop through all the lines that we received
 	for _, item := range incomingAddreses.IncomingTxItems {
@@ -122,7 +122,7 @@ func buildResponse(incomingAddreses IncomingTransactions) (Response, error) {
 		if item.Currency == "NAV" {
 
 			// setup the result struct we will use later
-			result := Result{}
+			result := WalletResult{}
 			result.Currency = "NAV"
 
 			// get transaction related to the address and store them in the result
@@ -140,13 +140,13 @@ func buildResponse(incomingAddreses IncomingTransactions) (Response, error) {
 }
 
 // getTxForAddresses takes addresses array and returns data for each
-func getTxForAddresses(addresses []string) ([]Address, error) {
+func getTxForAddresses(addresses []string) ([]AddressTransactions, error) {
 
-	adds := []Address{}
+	adds := []AddressTransactions{}
 
 	for _, addressStr := range addresses {
 
-		addStruct := Address{}
+		addStruct := AddressTransactions{}
 		addStruct.Address = addressStr
 		rpcTxIDsResp, err := getTxIdsRPC(addressStr)
 
