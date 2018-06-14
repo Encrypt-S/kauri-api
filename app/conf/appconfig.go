@@ -11,22 +11,24 @@ import (
 )
 
 // AppConfig defines a structure to store app config data
-// at present all config is mapped to Coins array
+// at present all config is mapped to ActiveCoins array
 type AppConfig struct {
-	Coins []Coin `json:"coin"`
+	ActiveCoins []CoinData `json:"coinData"`
 }
 
-// Coins defines structure of supported coin data
-type Coin struct {
+// CoinData defines properties of active coin
+type CoinData struct {
 	Name             string `json:"name"`
 	CurrencyCode     string `json:"currencyCode"`
+	LibPath          string `json:"libPath"`
+	DataDir          string `json:"dataDir"`
 	DaemonHeartbeat  int64  `json:"daemonHeartbeat"`
 	DaemonVersion    string `json:"daemonVersion"`
-	DataDir          string `json:"dataDir"`
 	LatestReleaseAPI string `json:"latestReleaseApi"`
 	ReleaseAPI       string `json:"ReleaseApi"`
 	LivePort         int64  `json:"livePort"`
 	TestNetPort      int64  `json:"testnetPort"`
+	UseTestNet       bool   `json:"useTestNet"`
 	CmdAddressIndex  string `json:"cmdAddressIndex"`
 	CmdNetwork       string `json:"cmdNetwork"`
 }
@@ -71,7 +73,7 @@ func LoadAppConfig() error {
 func SaveAppConfig() error {
 
 	jsonData, err := json.MarshalIndent(AppConfig{
-		Coins: AppConf.Coins,
+		ActiveCoins: AppConf.ActiveCoins,
 	}, "", "\t")
 	if err != nil {
 		return err

@@ -107,15 +107,16 @@ var minHeartbeat int64 = 1000 // the lowest value the hb checker can be set to
 
 var isGettingDaemon = false
 
-// CoinStartManager is a simple system that checks if the coin's daemon
-// is alive. If not it tries to startCoinDaemon it with proper config
-func CoinStartManager(coin conf.Coin) {
+// StartDaemonManager is a simple system that checks if the coin's daemon
+// is alive. If not it tries to startCoinDaemons it with proper config
+// It is called from the StartAllDaemonManagers function in managers pkg
+func StartDaemonManager(coinData conf.CoinData) {
 
 	// set the heartbeat interval but make sure it is not
 	// less than the min heartbeat setting
 	hbInterval := minHeartbeat
-	if coin.DaemonHeartbeat > hbInterval {
-		hbInterval = coin.DaemonHeartbeat
+	if coinData.DaemonHeartbeat > hbInterval {
+		hbInterval = coinData.DaemonHeartbeat
 	}
 
 	ticker := time.NewTicker(time.Duration(hbInterval) * time.Millisecond)
@@ -123,20 +124,19 @@ func CoinStartManager(coin conf.Coin) {
 		for range ticker.C {
 
 			// check to see if the daemon is alive
-			if isAlive() {
-				log.Println("NAVCoin daemon is alive!")
+			if isAlive(coinData) {
+				log.Println(coinData.CurrencyCode + "daemon is alive!")
 			} else {
 
-				// only do thing if we are already not getting the daemon
+				// handle and stop an unresponsive daemon
 				if !isGettingDaemon {
-					log.Println("NAVCoin daemon is unresponsive...")
+					log.Println(coinData.CurrencyCode + "daemon is unresponsive...")
 
 					if runningDaemon != nil {
-						Stop(runningDaemon)
+						Stop(coinData, runningDaemon)
 					}
 
-					// startCoinDaemon the daemon and download it if necessary
-					cmd, err := DownloadAndStartCoin(coin)
+					cmd, err := DownloadAndStartManager(coinData)
 
 					if err != nil {
 						log.Println(err)
@@ -151,16 +151,16 @@ func CoinStartManager(coin conf.Coin) {
 	}()
 }
 
-// isAlive performs a simple rpc command to the Daemon
-// returns false on error
-func isAlive() bool {
+// isAlive performs a simple rpc command to current
+// coin's daemon :: returns false on error
+func isAlive(coinData conf.CoinData) bool {
 
 	isLiving := true
 
-	n := daemonrpc.RPCRequestData{}
-	n.Method = "getblockcount"
+	reqData := daemonrpc.RPCRequestData{}
+	reqData.Method = "getblockcount"
 
-	_, err := daemonrpc.RequestDaemon(n, conf.NavConf)
+	_, err := daemonrpc.RequestDaemon(reqData, coinData, conf.DaemonConf)
 
 	if err != nil {
 		isLiving = false
@@ -170,38 +170,39 @@ func isAlive() bool {
 
 }
 
-// DownloadAndStartCoin checks for supplied coin daemon
-// and either downloads it or starts it up if detected
-func DownloadAndStartCoin(coin conf.Coin) (*exec.Cmd, error) {
+// DownloadAndStartManager checks for current coin's daemon
+// and either downloads it or starts it up if already detected
+func DownloadAndStartManager(coinData conf.CoinData) (*exec.Cmd, error) {
 
-	path, err := CheckForCoinDaemon(coin)
+	path, err := CheckForActiveDaemons(coinData)
 
-	// download coin daemon if not found
+	// download daemon if not found
 	if err != nil {
-		downloadDaemon(coin)
+		downloadDaemons(coinData)
 	} else {
-		return startCoinDaemon(coin, path), nil
+		return startCoinDaemons(coinData, path), nil
 	}
 
-	return startCoinDaemon(coin, path), nil
+	// if found, just start it up
+	return startCoinDaemons(coinData, path), nil
 
 }
 
-func Stop(cmd *exec.Cmd) {
+func Stop(coinData conf.CoinData, cmd *exec.Cmd) {
 
 	if err := cmd.Process.Kill(); err != nil {
-		log.Fatal("failed to kill: ", err)
+		log.Fatal("failed to kill" + coinData.CurrencyCode + "process" + err.Error())
 	}
 }
 
-// CheckForCoinDaemon checks for supplied coin's current daemon
-// in appropriate path and reports back to DownLoadAndStartCoin
-func CheckForCoinDaemon(coin conf.Coin) (string, error) {
+// CheckForActiveDaemons checks for current coin's daemon
+// in appropriate path and reports back to DownLoadAndStartDaemons
+func CheckForActiveDaemons(coinData conf.CoinData) (string, error) {
 
-	// get the latest release info
-	releaseVersion := coin.DaemonVersion
+	// get the latest release version, equal to daemon version
+	releaseVersion := coinData.DaemonVersion
 
-	log.Println("Checking NAVCoin daemon for v" + releaseVersion)
+	log.Println("Checking" + coinData.CurrencyCode + "daemon for v" + releaseVersion)
 
 	// get the apps current path
 	path, err := fs.GetCurrentPath()
@@ -209,43 +210,49 @@ func CheckForCoinDaemon(coin conf.Coin) (string, error) {
 		return "", err
 	}
 
-	// build the path
-	path += "/lib/navcoin-" + releaseVersion + "/bin/" + getOSInfo().DaemonName
-	log.Println("Searching for NAVCoin daemon at " + path)
+	// build the path for current daemon
+	path += "/lib/" + coinData.LibPath + "-" + releaseVersion + "/bin/" + getOSInfo().DaemonName
+	log.Println("Searching for" + coinData.CurrencyCode +  "daemon at " + path)
 
-	// check the daemon exists
+	// check the current daemon exists
 	if !fs.Exists(path) {
-		log.Println("NAVCoin daemon not found for v" + releaseVersion)
-		return "", errors.New("NAVCoin daemon found for v" + releaseVersion)
+		log.Println(coinData.CurrencyCode + "daemon not found for v" + releaseVersion)
+		return "", errors.New(coinData.CurrencyCode + "daemon found for v" + releaseVersion)
 	} else {
-		log.Println("NAVCoin daemon located for v" + releaseVersion)
+		log.Println(coinData.CurrencyCode + "daemon located for v" + releaseVersion)
 	}
 
 	return path, nil
 
 }
 
-// startCoinDaemon pulls in proper config for supplied coin(s),
-// builds the command path, and executes start command
-func startCoinDaemon(coin conf.Coin, daemonPath string) *exec.Cmd {
+// startCoinDaemons pulls in config for coin data, daemonPath,
+// builds the command arguments, and executes start command
+func startCoinDaemons(coinData conf.CoinData, daemonPath string) *exec.Cmd {
 
-	log.Println("Booting NAVCoin daemon")
+	log.Println("Booting" + coinData.CurrencyCode + "daemon")
 
-	// build up the command flags from config
-	rpcUser := fmt.Sprintf("-rpcuser=%s", conf.NavConf.RPCUser)
-	rpcPassword := fmt.Sprintf("-rpcpassword=%s", conf.NavConf.RPCPassword)
-	addressIndex := fmt.Sprintf("-addressindex=%s", coin.CmdAddressIndex)
-	network := coin.CmdNetwork
+	// build up the command flags from daemon config
+	rpcUser := fmt.Sprintf("-rpcuser=%s", conf.DaemonConf.RPCUser)
+	rpcPassword := fmt.Sprintf("-rpcpassword=%s", conf.DaemonConf.RPCPassword)
 
-	dataDir :=
+	// build up the command flags from current coin config
+	addressIndex := fmt.Sprintf("-addressindex=%s", coinData.CmdAddressIndex)
+	dataDir := fmt.Sprintf("-datadir=/data/%s", coinData.DataDir)
+
+	// check to see if testnet is needed
+	testnet := ""
+	if coinData.UseTestNet {
+		testnet = "-testnet"
+	}
 
 	// setup to index transactions (required for API functionality)
-	cmd := exec.Command(daemonPath, rpcUser, rpcPassword, addressIndex, dataDir, network)
+	cmd := exec.Command(daemonPath, rpcUser, rpcPassword, addressIndex, dataDir, testnet)
 
 	err := cmd.Start()
 
 	if err != nil {
-		log.Fatal("Failed to startCoinDaemon the daemon: " + err.Error())
+		log.Fatal("Failed to startCoinDaemons the " + coinData.CurrencyCode + "daemon: " + err.Error())
 	}
 
 	return cmd
@@ -261,6 +268,7 @@ func getOSInfo() OSInfo {
 	//const goosList = "android darwin dragonfly freebsd linux nacl netbsd openbsd plan9 solaris windows zos "
 	//const goarchList = "386 amd64 amd64p32 arm armbe arm64 arm64be ppc64 ppc64le mips mipsle mips64 mips64le mips64p32 mips64p32le ppc s390 s390x sparc sparc64"
 
+	// switch on arch then switch on OS
 	switch runtime.GOARCH {
 
 	case "amd64":
@@ -268,13 +276,11 @@ func getOSInfo() OSInfo {
 		switch runtime.GOOS {
 
 		case "windows":
-
 			osInfo.DaemonName = WindowsDaemonName
 			osInfo.OS = "win64"
 			break
 
 		case "darwin":
-
 			osInfo.DaemonName = DarwinDaemonName
 			osInfo.OS = "osx64"
 			break
@@ -287,13 +293,13 @@ func getOSInfo() OSInfo {
 
 }
 
-// downloadDaemon pieces together release info, path, name
+// downloadDaemons pieces together release info, path, name
 // and passes that info to DownloadExtract function
-func downloadDaemon(coin conf.Coin) {
+func downloadDaemons(coinData conf.CoinData) {
 
-	releaseInfo, _ := getReleaseDataForVersion(coin)
+	releaseInfo, _ := getReleaseDataForVersion(coinData)
 
-	dlPath, dlName, _ := getDownloadPathAndName(releaseInfo)
+	dlPath, dlName, _ := getDownloadPathAndName(coinData.CurrencyCode, releaseInfo)
 
 	isGettingDaemon = true // flag we are getting the daemon
 
@@ -305,17 +311,17 @@ func downloadDaemon(coin conf.Coin) {
 
 // getReleaseDataForVersion ranges through the releases and matches
 // release TagName to the coin's DaemonVersion via gitHubReleaseInfo function
-func getReleaseDataForVersion(coin conf.Coin) (GitHubReleaseData, error) {
+func getReleaseDataForVersion(coinData conf.CoinData) (GitHubReleaseData, error) {
 
-	log.Println("Attempting to get release data for NAVCoin v" + coin.DaemonVersion)
+	log.Println("Attempting to get release data for NAVCoin v" + coinData.DaemonVersion)
 
-	releases, err := gitHubReleaseInfo(coin.ReleaseAPI)
+	releases, err := gitHubReleaseInfo(coinData.CurrencyCode, coinData.ReleaseAPI)
 
 	var e GitHubReleaseData = GitHubReleaseData{}
 
 	for _, elem := range releases {
-		if elem.TagName == coin.DaemonVersion {
-			log.Println("Release data found for NAVCoin v" + coin.DaemonVersion)
+		if elem.TagName == coinData.DaemonVersion {
+			log.Println("Release data found for NAVCoin v" + coinData.DaemonVersion)
 			e = elem.GitHubReleaseData
 		}
 	}
@@ -325,8 +331,8 @@ func getReleaseDataForVersion(coin conf.Coin) (GitHubReleaseData, error) {
 }
 
 // gitHubReleaseInfo takes the coin's ReleaseAPI and queries for data
-func gitHubReleaseInfo(releaseAPI string) (GitHubReleases, error) {
-	log.Println("Retrieving NAVCoin Github release data from: " + releaseAPI)
+func gitHubReleaseInfo(currencyCode string, releaseAPI string) (GitHubReleases, error) {
+	log.Println("Retrieving " + currencyCode + "Github release data from: " + releaseAPI)
 	response, err := http.Get(releaseAPI)
 
 	if err != nil {
@@ -349,9 +355,9 @@ func gitHubReleaseInfo(releaseAPI string) (GitHubReleases, error) {
 
 // getDownloadPathAndName ranges through release assets
 // and builds/returns downloadPath and downloadName
-func getDownloadPathAndName(gitHubReleaseData GitHubReleaseData) (string, string, error) {
+func getDownloadPathAndName(currencyCode string, gitHubReleaseData GitHubReleaseData) (string, string, error) {
 
-	log.Println("Getting download path/name for OS from release assest data")
+	log.Println("Getting download path/name for OS from " + currencyCode + " release assest data")
 
 	releaseInfo := gitHubReleaseData
 

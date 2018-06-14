@@ -27,10 +27,10 @@ func LoadDevConfig() error {
 func parseDevConfig() {
 
 	if viper.GetString("navConfig.rpcUser") != "" {
-		NavConf.RPCUser = viper.GetString("navConfig.rpcUser")
+		DaemonConf.RPCUser = viper.GetString("navConfig.rpcUser")
 	}
 	if viper.GetString("navConfig.rpcPassword") != "" {
-		NavConf.RPCPassword = viper.GetString("navConfig.rpcPassword")
+		DaemonConf.RPCPassword = viper.GetString("navConfig.rpcPassword")
 	}
 
 }

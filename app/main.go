@@ -11,25 +11,25 @@ import (
 	"github.com/Encrypt-S/kauri-api/app/api"
 	"github.com/Encrypt-S/kauri-api/app/conf"
 	"github.com/gorilla/mux"
-	"github.com/Encrypt-S/kauri-api/app/daemon/daemonapi"
 	"github.com/Encrypt-S/kauri-api/app/manager"
 )
 
 func main() {
 
+	// prime the app
 	initMain()
 
 	// log out server runtime OS and Architecture
 	log.Println(fmt.Sprintf("Server running in %s:%s", runtime.GOOS, runtime.GOARCH))
 	log.Println(fmt.Sprintf("App pid : %d.", os.Getpid()))
 
-	// load the server config - this is required otherwise we die right here
+	// load the server config - required - contains server data
 	serverConfig, err := conf.LoadServerConfig()
 	if err != nil {
 		log.Fatal("Failed to load the server config: " + err.Error())
 	}
 
-	// Load the App config
+	// load the app config - required - contains active coin data
 	err = conf.LoadAppConfig()
 	if err != nil {
 		log.Println("Failed to load the app config: " + err.Error())
@@ -37,31 +37,30 @@ func main() {
 
 	conf.StartConfigManager()
 
-	//load the dev config file if one is set
+	// load the dev config file if one is set
 	//conf.LoadDevConfig()
 
-	//daemon.StartManager()
-	manager.StartAllDaemonManagers(conf.AppConf.Coins)
-
+	// start the daemon managers for active coins
+	manager.StartAllDaemonManagers(conf.AppConf.ActiveCoins)
 
 	// setup the router
 	router := mux.NewRouter()
 
-	// setup the api
+	// setup the api meta and coin meta handlers
 	api.InitMetaHandlers(router, "api")
 
-	// init the transaction handlers
-	daemonapi.InitTxHandlers(router, "api")
+	// start the transaction handlers for active coins
+	manager.StartAllTxHandlers(router, conf.AppConf.ActiveCoins)
 
-	// Start http server
+	// set the proper server port
 	port := fmt.Sprintf(":%d", serverConfig.ManagerAPIPort)
+
+	// start http server and listen up
 	http.ListenAndServe(port, router)
 }
 
-// Start everything before we get going
+// initMain primes the pump before main init sequence
 func initMain() {
-
 	api.BuildAppErrors()
 	conf.CreateRPCDetails()
-
 }

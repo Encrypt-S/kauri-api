@@ -15,13 +15,13 @@ import (
 )
 
 // InitTxHandlers sets up handlers for transaction-related rpc commands
-func InitTxHandlers(r *mux.Router, prefix string) {
+func InitTxHandlers(r *mux.Router, coinData conf.CoinData, prefix string) {
 
 	namespace := "transactions"
 
 	// get raw transactions endpoint :: provides raw transaction data for supplied wallet addresses
 	getRawTransactionsPath := api.RouteBuilder(prefix, namespace, "v1", "getrawtransactions")
-	api.OpenRouteHandler(getRawTransactionsPath, r, getRawTxHandler())
+	api.OpenRouteHandler(getRawTransactionsPath, r, getRawTxHandler(coinData))
 
 }
 
@@ -76,7 +76,7 @@ type GetRawTxResp struct {
 }
 
 // getRawTxHandler ranges through transactions, returns RPC response data
-func getRawTxHandler() http.Handler {
+func getRawTxHandler(coinData conf.CoinData) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		apiResp := api.Response{}
@@ -93,7 +93,7 @@ func getRawTxHandler() http.Handler {
 			return
 		}
 
-		resp, err := buildResponse(incomingTxs)
+		resp, err := buildResponse(coinData, incomingTxs)
 
 		if err != nil {
 			returnErr := api.AppRespErrors.RPCResponseError
@@ -112,7 +112,7 @@ func getRawTxHandler() http.Handler {
 }
 
 // buildResponse takes address and returns response data
-func buildResponse(incomingAddreses IncomingTransactions) (TxResponse, error) {
+func buildResponse(coinData conf.CoinData, incomingAddreses IncomingTransactions) (TxResponse, error) {
 
 	resp := TxResponse{}
 
@@ -126,7 +126,7 @@ func buildResponse(incomingAddreses IncomingTransactions) (TxResponse, error) {
 			result.Currency = "NAV"
 
 			// get transaction related to the address and store them in the result
-			result.Addresses, _ = getTxForAddresses(item.Addresses)
+			result.Addresses, _ = getTxForAddresses(coinData, item.Addresses)
 
 			// append the result to the array of results
 			resp.Results = append(resp.Results, result)
@@ -140,7 +140,7 @@ func buildResponse(incomingAddreses IncomingTransactions) (TxResponse, error) {
 }
 
 // getTxForAddresses takes addresses array and returns data for each
-func getTxForAddresses(addresses []string) ([]AddressTransactions, error) {
+func getTxForAddresses(coinData conf.CoinData, addresses []string) ([]AddressTransactions, error) {
 
 	adds := []AddressTransactions{}
 
@@ -148,7 +148,7 @@ func getTxForAddresses(addresses []string) ([]AddressTransactions, error) {
 
 		addStruct := AddressTransactions{}
 		addStruct.Address = addressStr
-		rpcTxIDsResp, err := getTxIdsRPC(addressStr)
+		rpcTxIDsResp, err := getTxIdsRPC(coinData, addressStr)
 
 		if err != nil {
 			return nil, err
@@ -157,13 +157,13 @@ func getTxForAddresses(addresses []string) ([]AddressTransactions, error) {
 		// for all the txIDs from the rpc we need to create a transaction
 		for _, txID := range rpcTxIDsResp.Result {
 
-			rawTx, _ := getRawTx(txID)
+			rawTx, _ := getRawTx(txID, coinData)
 
 			if err != nil {
 				return nil, err
 			}
 
-			verboseTx, _ := getRawTxVerbose(txID)
+			verboseTx, _ := getRawTxVerbose(txID, coinData)
 
 			if err != nil {
 				return nil, err
@@ -182,17 +182,17 @@ func getTxForAddresses(addresses []string) ([]AddressTransactions, error) {
 }
 
 // getTxIdsRPC takes address and returns array of txids
-func getTxIdsRPC(address string) (GetTxIDsResp, error) {
+func getTxIdsRPC(coinData conf.CoinData, address string) (GetTxIDsResp, error) {
 
 	getParams := GetTxIDParams{}
 
 	getParams.Addresses = append(getParams.Addresses, address)
 
-	n := daemonrpc.RPCRequestData{}
-	n.Method = "getaddresstxids"
-	n.Params = []GetTxIDParams{getParams}
+	reqData := daemonrpc.RPCRequestData{}
+	reqData.Method = "getaddresstxids"
+	reqData.Params = []GetTxIDParams{getParams}
 
-	resp, err := daemonrpc.RequestDaemon(n, conf.NavConf)
+	resp, err := daemonrpc.RequestDaemon(reqData, coinData, conf.DaemonConf)
 
 	if err != nil {
 		return GetTxIDsResp{}, err
@@ -211,13 +211,13 @@ func getTxIdsRPC(address string) (GetTxIDsResp, error) {
 }
 
 // getRawTx takes txid and returns raw transaction data
-func getRawTx(txid string) (GetRawTxResp, error) {
+func getRawTx(txid string, coinData conf.CoinData) (GetRawTxResp, error) {
 
 	n := daemonrpc.RPCRequestData{}
 	n.Method = "getrawtransaction"
 	n.Params = []string{txid}
 
-	resp, err := daemonrpc.RequestDaemon(n, conf.NavConf)
+	resp, err := daemonrpc.RequestDaemon(n, coinData, conf.DaemonConf)
 	if err != nil {
 		return GetRawTxResp{}, err
 	}
@@ -237,13 +237,13 @@ func getRawTx(txid string) (GetRawTxResp, error) {
 }
 
 // getRawTxVerbose takes txid and returns verbose transaction data
-func getRawTxVerbose(txid string) (interface{}, error) {
+func getRawTxVerbose(txid string, coinData conf.CoinData) (interface{}, error) {
 
-	n := daemonrpc.RPCRequestData{}
-	n.Method = "getrawtransaction"
-	n.Params = []interface{}{txid, 1}
+	rpcData := daemonrpc.RPCRequestData{}
+	rpcData.Method = "getrawtransaction"
+	rpcData.Params = []interface{}{txid, 1}
 
-	resp, err := daemonrpc.RequestDaemon(n, conf.NavConf)
+	resp, err := daemonrpc.RequestDaemon(rpcData, coinData, conf.DaemonConf)
 
 	if err != nil {
 		return nil, err
