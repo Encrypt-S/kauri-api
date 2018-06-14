@@ -19,11 +19,6 @@ import (
 	"github.com/Encrypt-S/kauri-api/app/fs"
 )
 
-const (
-	WindowsDaemonName string = "navcoind.exe"
-	DarwinDaemonName  string = "navcoind"
-)
-
 type OSInfo struct {
 	DaemonName string
 	OS         string
@@ -211,8 +206,8 @@ func CheckForActiveDaemons(coinData conf.CoinData) (string, error) {
 	}
 
 	// build the path for current daemon
-	path += "/lib/" + coinData.LibPath + "-" + releaseVersion + "/bin/" + getOSInfo().DaemonName
-	log.Println("Searching for" + coinData.CurrencyCode +  "daemon at " + path)
+	path += "/lib/" + coinData.LibPath + "-" + releaseVersion + "/bin/" + getOSInfo(coinData).DaemonName
+	log.Println("Searching for" + coinData.CurrencyCode + "daemon at " + path)
 
 	// check the current daemon exists
 	if !fs.Exists(path) {
@@ -260,7 +255,7 @@ func startCoinDaemons(coinData conf.CoinData, daemonPath string) *exec.Cmd {
 }
 
 // getOSInfo supplies current OS info and the Daemon name for said OS
-func getOSInfo() OSInfo {
+func getOSInfo(coinData conf.CoinData) OSInfo {
 
 	osInfo := OSInfo{}
 
@@ -276,12 +271,12 @@ func getOSInfo() OSInfo {
 		switch runtime.GOOS {
 
 		case "windows":
-			osInfo.DaemonName = WindowsDaemonName
+			osInfo.DaemonName = coinData.WindowsDaemonName
 			osInfo.OS = "win64"
 			break
 
 		case "darwin":
-			osInfo.DaemonName = DarwinDaemonName
+			osInfo.DaemonName = coinData.DarwinDaemonName
 			osInfo.OS = "osx64"
 			break
 		}
@@ -299,7 +294,7 @@ func downloadDaemons(coinData conf.CoinData) {
 
 	releaseInfo, _ := getReleaseDataForVersion(coinData)
 
-	dlPath, dlName, _ := getDownloadPathAndName(coinData.CurrencyCode, releaseInfo)
+	dlPath, dlName, _ := getDownloadPathAndName(coinData, releaseInfo)
 
 	isGettingDaemon = true // flag we are getting the daemon
 
@@ -347,7 +342,6 @@ func gitHubReleaseInfo(currencyCode string, releaseAPI string) (GitHubReleases, 
 
 	if jsonErr != nil {
 		return GitHubReleases{}, jsonErr
-		log.Fatal(jsonErr)
 	}
 
 	return c, nil
@@ -355,9 +349,9 @@ func gitHubReleaseInfo(currencyCode string, releaseAPI string) (GitHubReleases, 
 
 // getDownloadPathAndName ranges through release assets
 // and builds/returns downloadPath and downloadName
-func getDownloadPathAndName(currencyCode string, gitHubReleaseData GitHubReleaseData) (string, string, error) {
+func getDownloadPathAndName(coinData conf.CoinData, gitHubReleaseData GitHubReleaseData) (string, string, error) {
 
-	log.Println("Getting download path/name for OS from " + currencyCode + " release assest data")
+	log.Println("Getting download path/name for OS from " + coinData.CurrencyCode + " release assest data")
 
 	releaseInfo := gitHubReleaseData
 
@@ -368,7 +362,7 @@ func getDownloadPathAndName(currencyCode string, gitHubReleaseData GitHubRelease
 
 		asset := releaseInfo.Assets[e]
 
-		if strings.Contains(asset.Name, getOSInfo().OS) {
+		if strings.Contains(asset.Name, getOSInfo(coinData).OS) {
 			// windows os check to provide .zip
 			if strings.Contains(asset.Name, "win") {
 				if filepath.Ext(asset.Name) == ".zip" {

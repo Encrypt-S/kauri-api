@@ -9,12 +9,14 @@
         "dataDir": "nav",
         "daemonHeartbeat": "5000",
         "daemonVersion": "4.2.1",
+        "WindowsDaemonName": "navcoind.exe",
+        "DarwinDaemonName": "navcoind",
         "latestReleaseAPI": "https://api.github.com/repos/NAVCoin/navcoin-core/releases/latest",
         "releaseAPI": "https://api.github.com/repos/NAVCoin/navcoin-core/releases",
         "livePort": 44444,
         "testnetPort": 44445,
         "useTestNet" : false,
-        "cmdAddressIndex": "1"
+        "cmdAddressIndex": "1",
       }
     ]
   }

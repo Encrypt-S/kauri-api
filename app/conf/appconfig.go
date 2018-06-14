@@ -18,19 +18,21 @@ type AppConfig struct {
 
 // CoinData defines properties of active coin
 type CoinData struct {
-	Name             string `json:"name"`
-	CurrencyCode     string `json:"currencyCode"`
-	LibPath          string `json:"libPath"`
-	DataDir          string `json:"dataDir"`
-	DaemonHeartbeat  int64  `json:"daemonHeartbeat"`
-	DaemonVersion    string `json:"daemonVersion"`
-	LatestReleaseAPI string `json:"latestReleaseApi"`
-	ReleaseAPI       string `json:"ReleaseApi"`
-	LivePort         int64  `json:"livePort"`
-	TestNetPort      int64  `json:"testnetPort"`
-	UseTestNet       bool   `json:"useTestNet"`
-	CmdAddressIndex  string `json:"cmdAddressIndex"`
-	CmdNetwork       string `json:"cmdNetwork"`
+	Name              string `json:"name"`
+	CurrencyCode      string `json:"currencyCode"`
+	LibPath           string `json:"libPath"`
+	DataDir           string `json:"dataDir"`
+	DaemonHeartbeat   int64  `json:"daemonHeartbeat"`
+	DaemonVersion     string `json:"daemonVersion"`
+	WindowsDaemonName string `json:"windowsDaemonName"`
+	DarwinDaemonName  string `json:"darwinDaemonName"`
+	LatestReleaseAPI  string `json:"latestReleaseApi"`
+	ReleaseAPI        string `json:"ReleaseApi"`
+	LivePort          int64  `json:"livePort"`
+	TestNetPort       int64  `json:"testnetPort"`
+	UseTestNet        bool   `json:"useTestNet"`
+	CmdAddressIndex   string `json:"cmdAddressIndex"`
+	CmdNetwork        string `json:"cmdNetwork"`
 }
 
 // StartConfigManager sets up the ticker loop to load app config
