@@ -1,4 +1,4 @@
-package wallet
+package daemonapi
 
 import (
 	"net/http"

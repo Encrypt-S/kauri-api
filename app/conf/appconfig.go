@@ -11,20 +11,24 @@ import (
 )
 
 // AppConfig defines a structure to store app config data
+// at present all config is mapped to Coins array
 type AppConfig struct {
-	NavConf           string   `json:"navconf"`
-	RunningNavVersion string   `json:"runningNavVersion"`
-	AllowedIps        []string `json:"allowedIps"`
-	UIPassword        string   `json:"uiPassword"`
-	Coins             []Coins  `json:"coins"`
+	Coins []Coin `json:"coin"`
 }
 
 // Coins defines structure of supported coin data
-type Coins struct {
-	DaemonVersion    string `json:"daemonVersion"`
+type Coin struct {
+	Name             string `json:"name"`
 	CurrencyCode     string `json:"currencyCode"`
+	DaemonHeartbeat  int64  `json:"daemonHeartbeat"`
+	DaemonVersion    string `json:"daemonVersion"`
+	DataDir          string `json:"dataDir"`
 	LatestReleaseAPI string `json:"latestReleaseApi"`
 	ReleaseAPI       string `json:"ReleaseApi"`
+	LivePort         int64  `json:"livePort"`
+	TestNetPort      int64  `json:"testnetPort"`
+	CmdAddressIndex  string `json:"cmdAddressIndex"`
+	CmdNetwork       string `json:"cmdNetwork"`
 }
 
 // StartConfigManager sets up the ticker loop to load app config
@@ -50,7 +54,7 @@ func LoadAppConfig() error {
 		return err
 	}
 
-	//parse out the config
+	// parse out the config
 	var appConfig AppConfig
 	err = viper.UnmarshalKey("config", &appConfig)
 
@@ -67,10 +71,7 @@ func LoadAppConfig() error {
 func SaveAppConfig() error {
 
 	jsonData, err := json.MarshalIndent(AppConfig{
-		NavConf:           AppConf.NavConf,
-		RunningNavVersion: AppConf.RunningNavVersion,
-		AllowedIps:        AppConf.AllowedIps,
-		UIPassword:        AppConf.UIPassword,
+		Coins: AppConf.Coins,
 	}, "", "\t")
 	if err != nil {
 		return err

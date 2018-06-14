@@ -9,9 +9,10 @@ import (
 	"runtime"
 
 	"github.com/Encrypt-S/kauri-api/app/api"
-	"github.com/Encrypt-S/kauri-api/app/api/wallet"
 	"github.com/Encrypt-S/kauri-api/app/conf"
 	"github.com/gorilla/mux"
+	"github.com/Encrypt-S/kauri-api/app/daemon/daemonapi"
+	"github.com/Encrypt-S/kauri-api/app/manager"
 )
 
 func main() {
@@ -37,7 +38,11 @@ func main() {
 	conf.StartConfigManager()
 
 	//load the dev config file if one is set
-	conf.LoadDevConfig()
+	//conf.LoadDevConfig()
+
+	//daemon.StartManager()
+	manager.StartAllDaemonManagers(conf.AppConf.Coins)
+
 
 	// setup the router
 	router := mux.NewRouter()
@@ -46,7 +51,7 @@ func main() {
 	api.InitMetaHandlers(router, "api")
 
 	// init the transaction handlers
-	wallet.InitTxHandlers(router, "api")
+	daemonapi.InitTxHandlers(router, "api")
 
 	// Start http server
 	port := fmt.Sprintf(":%d", serverConfig.ManagerAPIPort)
