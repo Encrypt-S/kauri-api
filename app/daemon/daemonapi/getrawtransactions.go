@@ -157,13 +157,13 @@ func getTxForAddresses(coinData conf.CoinData, addresses []string) ([]AddressTra
 		// for all the txIDs from the rpc we need to create a transaction
 		for _, txID := range rpcTxIDsResp.Result {
 
-			rawTx, _ := getRawTx(txID, coinData)
+			rawTx, _ := getRawTx(coinData, txID)
 
 			if err != nil {
 				return nil, err
 			}
 
-			verboseTx, _ := getRawTxVerbose(txID, coinData)
+			verboseTx, _ := getRawTxVerbose(coinData, txID)
 
 			if err != nil {
 				return nil, err
@@ -192,7 +192,7 @@ func getTxIdsRPC(coinData conf.CoinData, address string) (GetTxIDsResp, error) {
 	reqData.Method = "getaddresstxids"
 	reqData.Params = []GetTxIDParams{getParams}
 
-	resp, err := daemonrpc.RequestDaemon(reqData, coinData, conf.DaemonConf)
+	resp, err := daemonrpc.RequestDaemon(coinData, reqData, conf.DaemonConf)
 
 	if err != nil {
 		return GetTxIDsResp{}, err
@@ -211,13 +211,13 @@ func getTxIdsRPC(coinData conf.CoinData, address string) (GetTxIDsResp, error) {
 }
 
 // getRawTx takes txid and returns raw transaction data
-func getRawTx(txid string, coinData conf.CoinData) (GetRawTxResp, error) {
+func getRawTx(coinData conf.CoinData, txid string) (GetRawTxResp, error) {
 
-	n := daemonrpc.RPCRequestData{}
-	n.Method = "getrawtransaction"
-	n.Params = []string{txid}
+	rpcData := daemonrpc.RPCRequestData{}
+	rpcData.Method = "getrawtransaction"
+	rpcData.Params = []string{txid}
 
-	resp, err := daemonrpc.RequestDaemon(n, coinData, conf.DaemonConf)
+	resp, err := daemonrpc.RequestDaemon(coinData, rpcData, conf.DaemonConf)
 	if err != nil {
 		return GetRawTxResp{}, err
 	}
@@ -237,13 +237,13 @@ func getRawTx(txid string, coinData conf.CoinData) (GetRawTxResp, error) {
 }
 
 // getRawTxVerbose takes txid and returns verbose transaction data
-func getRawTxVerbose(txid string, coinData conf.CoinData) (interface{}, error) {
+func getRawTxVerbose(coinData conf.CoinData, txid string) (interface{}, error) {
 
 	rpcData := daemonrpc.RPCRequestData{}
 	rpcData.Method = "getrawtransaction"
 	rpcData.Params = []interface{}{txid, 1}
 
-	resp, err := daemonrpc.RequestDaemon(rpcData, coinData, conf.DaemonConf)
+	resp, err := daemonrpc.RequestDaemon(coinData, rpcData, conf.DaemonConf)
 
 	if err != nil {
 		return nil, err

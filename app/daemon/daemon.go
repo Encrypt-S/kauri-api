@@ -155,7 +155,7 @@ func isAlive(coinData conf.CoinData) bool {
 	reqData := daemonrpc.RPCRequestData{}
 	reqData.Method = "getblockcount"
 
-	_, err := daemonrpc.RequestDaemon(reqData, coinData, conf.DaemonConf)
+	_, err := daemonrpc.RequestDaemon(coinData, reqData, conf.DaemonConf)
 
 	if err != nil {
 		isLiving = false

@@ -26,7 +26,7 @@ type RPCResponse struct {
 
 // RequestDaemon requests the data via the daemon's RPC api
 // allows auto switches between the testnet and live depending on the config
-func RequestDaemon(rpcReqData RPCRequestData, coinData conf.CoinData, daemonConf conf.DaemonConfig) (*http.Response, error) {
+func RequestDaemon(coinData conf.CoinData, rpcReqData RPCRequestData, daemonConf conf.DaemonConfig) (*http.Response, error) {
 
 	username := daemonConf.RPCUser
 	password := daemonConf.RPCPassword

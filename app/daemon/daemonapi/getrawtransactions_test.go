@@ -7,7 +7,14 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/jarcoal/httpmock.v1"
+	"github.com/Encrypt-S/kauri-api/app/conf"
 )
+
+func mockCoinData() conf.CoinData {
+	data := conf.CoinData{}
+	data.CurrencyCode = "NAV"
+	return data
+}
 
 // mock data struct for get txids response
 func mockGetTxIdsResponseData() string {
@@ -70,7 +77,9 @@ func Test_buildResponse(t *testing.T) {
 		httpmock.NewStringResponder(200, mockGetTxIdsResponseData()))
 
 	incomingAddreses := setupIncomingTestData(t)
-	resp, _ := buildResponse(incomingAddreses)
+	coinData := mockCoinData()
+
+	resp, _ := buildResponse(coinData, incomingAddreses)
 
 	// check that we have only nav currencies
 	for i := range resp.Results {
@@ -97,8 +106,9 @@ func Test_getTransactionsForAddress(t *testing.T) {
 		httpmock.NewStringResponder(200, mockGetTxIdsResponseData()))
 
 	incomingAddresses := setupIncomingTestData(t)
+	coinData := mockCoinData()
 
-	adds, _ := getTxForAddresses(incomingAddresses.IncomingTxItems[0].Addresses)
+	adds, _ := getTxForAddresses(coinData, incomingAddresses.IncomingTxItems[0].Addresses)
 
 	// check we have the right amount of addresses
 	assert.Equal(t, 2, len(adds))
@@ -120,9 +130,11 @@ func Test_getTxIDsRPC(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder("POST", "http://127.0.0.1:0",
-		httpmock.NewStringResponder(200, mockGetTxIdsResponseData()))
+	httpmock.NewStringResponder(200, mockGetTxIdsResponseData()))
 
-	rpcResp, _ := getTxIdsRPC("NW7uXr4ZAeJKigMGnKbSLfCBQY59cH1T8G")
+	coinData := mockCoinData()
+
+	rpcResp, _ := getTxIdsRPC(coinData, "NW7uXr4ZAeJKigMGnKbSLfCBQY59cH1T8G")
 
 	assert.Equal(t, "11a7071a43a8da2b9ac116865a6cd92c985c3f7cbde63933d253f88dffaa311a", rpcResp.Result[0])
 	assert.Equal(t, "52489abff43212445d432f6042e5b9faf99b3c843a79210629b5383f52694ec5", rpcResp.Result[4])
@@ -136,9 +148,11 @@ func Test_getRawTx(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder("POST", "http://127.0.0.1:0",
-		httpmock.NewStringResponder(200, mockGetRawTxResponseData()))
+	httpmock.NewStringResponder(200, mockGetRawTxResponseData()))
 
-	rpcResp, _ := getRawTx("11a7071a43a8da2b9ac116865a6cd92c985c3f7cbde63933d253f88dffaa311a")
+	coinData := mockCoinData()
+
+	rpcResp, _ := getRawTx(coinData, "11a7071a43a8da2b9ac116865a6cd92c985c3f7cbde63933d253f88dffaa311a")
 
 	assert.Equal(t, "123", rpcResp.Result)
 
@@ -151,9 +165,11 @@ func Test_getVerboseTx(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder("POST", "http://127.0.0.1:0",
-		httpmock.NewStringResponder(200, mockGetRawTxVerboseResponseData()))
+	httpmock.NewStringResponder(200, mockGetRawTxVerboseResponseData()))
 
-	rpcResp, _ := getRawTxVerbose("11a7071a43a8da2b9ac116865a6cd92c985c3f7cbde63933d253f88dffaa311a")
+	coinData := mockCoinData()
+
+	rpcResp, _ := getRawTxVerbose(coinData,"11a7071a43a8da2b9ac116865a6cd92c985c3f7cbde63933d253f88dffaa311a")
 
 	assert.Equal(t, "123", rpcResp)
 
