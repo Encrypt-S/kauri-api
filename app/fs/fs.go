@@ -39,44 +39,6 @@ func (wc WriteCounter) PrintProgress() {
 	fmt.Printf("\rDownloading... %s complete", humanize.Bytes(wc.Total))
 }
 
-// DownloadFile will download a url to a local file.
-// efficiently writes as it downloads instead of loading file in memory
-// io.TeeReader is passed into Copy() to report progress on the download
-func DownloadFile(filepath string, url string) error {
-
-	// Create the file, but give it a tmp file extension, this means we won't overwrite a
-	// file until it's downloaded, but we'll remove the tmp extension once downloaded.
-	out, err := os.Create(filepath + ".tmp")
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	// Get the data
-	resp, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	// Create our progress reporter and pass it to be used alongside our writer
-	counter := &WriteCounter{}
-	_, err = io.Copy(out, io.TeeReader(resp.Body, counter))
-	if err != nil {
-		return err
-	}
-
-	// The progress use the same line so print a new line once it's finished downloading
-	fmt.Print("\n")
-
-	err = os.Rename(filepath+".tmp", filepath)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // DownloadExtract sets up and runs the functions
 // needed for downloading and extracting of assets
 func DownloadExtract(url string, assetName string) error {
@@ -97,6 +59,23 @@ func DownloadExtract(url string, assetName string) error {
 
 	return nil
 
+}
+
+func CreateDataDir(dirPath string) {
+
+	path, err := GetCurrentPath()
+	if err != nil {
+		log.Println(err)
+	}
+
+	// build the path for current daemon
+	path += dirPath
+
+	err = os.Mkdir(path, 0777)
+
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 // Download performs file download of the given url

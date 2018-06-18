@@ -1,13 +1,11 @@
 {
-  "config": {
-
-    "coinData": [
+    "coins": [
       {
         "name": "NavCoin",
         "currencyCode": "NAV",
         "libPath": "navcoin",
-        "dataDir": "nav",
-        "daemonHeartbeat": "5000",
+        "dataDir": "/lib/nav",
+        "daemonHeartbeat": 50000,
         "daemonVersion": "4.2.1",
         "WindowsDaemonName": "navcoind.exe",
         "DarwinDaemonName": "navcoind",
@@ -16,8 +14,8 @@
         "livePort": 44444,
         "testnetPort": 44445,
         "useTestNet" : false,
-        "cmdAddressIndex": "1",
+        "indexTransactions": true
       }
     ]
-  }
+
 }

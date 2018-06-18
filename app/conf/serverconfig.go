@@ -10,7 +10,7 @@ type ServerConfig struct {
 }
 
 // LoadServerConfig sets up viper, reads and parses server config
-func LoadServerConfig() (ServerConfig, error) {
+func LoadServerConfig() error {
 
 	viper.SetConfigName("server-config")
 	viper.AddConfigPath(".")
@@ -19,24 +19,17 @@ func LoadServerConfig() (ServerConfig, error) {
 	viper.AddConfigPath("../")
 
 	err := viper.ReadInConfig()
-
 	if err != nil {
-		return ServerConfig{}, err
+		return err
 	}
 
-	serverConfig := parseServerConfig(ServerConfig{})
+	// parse out the config
+	var serverConfig = ServerConfig{}
+	err = viper.Unmarshal(&serverConfig)
 
 	ServerConf = serverConfig
 
-	return serverConfig, nil
+	return nil
 
 }
 
-// parseServerConfig takes ServerConfig, parses and returns serverconf
-func parseServerConfig(serverconf ServerConfig) ServerConfig {
-
-	serverconf.ManagerAPIPort = viper.GetInt64("managerApiPort")
-
-	return serverconf
-
-}

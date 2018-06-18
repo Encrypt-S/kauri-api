@@ -14,8 +14,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// InitTxHandlers sets up handlers for transaction-related rpc commands
-func InitTxHandlers(r *mux.Router, coinData conf.CoinData, prefix string) {
+// InitWalletHandlers sets up handlers for transaction-related rpc commands
+func InitWalletHandlers(r *mux.Router, coinData conf.CoinData, prefix string) {
 
 	namespace := "transactions"
 

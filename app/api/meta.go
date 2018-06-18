@@ -23,7 +23,7 @@ func InitMetaHandlers(r *mux.Router, prefix string) {
 func coinMetaHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		appResp := Response{}
-		appResp.Data = conf.AppConf.ActiveCoins
+		appResp.Data = conf.AppConf.Coins
 		appResp.Send(w)
 
 	})

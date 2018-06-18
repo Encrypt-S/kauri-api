@@ -17,14 +17,15 @@ import (
 func main() {
 
 	// prime the app
-	initMain()
+	api.BuildAppErrors()
+	conf.CreateRPCDetails()
 
 	// log out server runtime OS and Architecture
 	log.Println(fmt.Sprintf("Server running in %s:%s", runtime.GOOS, runtime.GOARCH))
 	log.Println(fmt.Sprintf("App pid : %d.", os.Getpid()))
 
 	// load the server config - required - contains server data
-	serverConfig, err := conf.LoadServerConfig()
+	err := conf.LoadServerConfig()
 	if err != nil {
 		log.Fatal("Failed to load the server config: " + err.Error())
 	}
@@ -35,13 +36,13 @@ func main() {
 		log.Println("Failed to load the app config: " + err.Error())
 	}
 
-	conf.StartConfigManager()
+	//conf.StartConfigManager()
 
 	// load the dev config file if one is set
-	//conf.LoadDevConfig()
+	conf.LoadDevConfig()
 
 	// start the daemon managers for active coins
-	manager.StartAllDaemonManagers(conf.AppConf.ActiveCoins)
+	manager.StartAllDaemonManagers(conf.AppConf.Coins)
 
 	// setup the router
 	router := mux.NewRouter()
@@ -50,17 +51,12 @@ func main() {
 	api.InitMetaHandlers(router, "api")
 
 	// start the transaction handlers for active coins
-	manager.StartAllTxHandlers(router, conf.AppConf.ActiveCoins)
+	manager.StartWalletHandlers(router, conf.AppConf.Coins)
 
 	// set the proper server port
-	port := fmt.Sprintf(":%d", serverConfig.ManagerAPIPort)
+	port := fmt.Sprintf(":%d", conf.ServerConf.ManagerAPIPort)
 
 	// start http server and listen up
 	http.ListenAndServe(port, router)
 }
 
-// initMain primes the pump before main init sequence
-func initMain() {
-	api.BuildAppErrors()
-	conf.CreateRPCDetails()
-}

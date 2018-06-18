@@ -15,8 +15,8 @@ import (
 	"fmt"
 
 	"github.com/Encrypt-S/kauri-api/app/conf"
-	"github.com/Encrypt-S/kauri-api/app/daemon/daemonrpc"
 	"github.com/Encrypt-S/kauri-api/app/fs"
+	"github.com/Encrypt-S/kauri-api/app/daemon/daemonrpc"
 )
 
 type OSInfo struct {
@@ -98,14 +98,16 @@ type GitHubReleaseData struct {
 }
 
 var runningDaemon *exec.Cmd
-var minHeartbeat int64 = 1000 // the lowest value the hb checker can be set to
+var minHeartbeat = 1000 // the lowest value the hb checker can be set to
 
 var isGettingDaemon = false
 
-// StartDaemonManager is a simple system that checks if the coin's daemon
+// StartManager is a simple system that checks if the coin's daemon
 // is alive. If not it tries to startCoinDaemons it with proper config
 // It is called from the StartAllDaemonManagers function in managers pkg
-func StartDaemonManager(coinData conf.CoinData) {
+func StartManager(coinData conf.CoinData) {
+
+	log.Println("starting manager for " + coinData.CurrencyCode + " daemon...")
 
 	// set the heartbeat interval but make sure it is not
 	// less than the min heartbeat setting
@@ -114,48 +116,47 @@ func StartDaemonManager(coinData conf.CoinData) {
 		hbInterval = coinData.DaemonHeartbeat
 	}
 
-	ticker := time.NewTicker(time.Duration(hbInterval) * time.Millisecond)
-	go func() {
-		for range ticker.C {
+	// check to see if the daemon is alive
+	if isAlive(coinData) {
+		log.Println(coinData.CurrencyCode + " daemon is alive!")
+	} else {
+		log.Println(coinData.CurrencyCode + " daemon is not yet alive...")
 
-			// check to see if the daemon is alive
-			if isAlive(coinData) {
-				log.Println(coinData.CurrencyCode + "daemon is alive!")
-			} else {
+		// only do thing if we are already not getting the daemon
+		if !isGettingDaemon {
+			log.Println(coinData.CurrencyCode + " daemon is unresponsive...")
 
-				// handle and stop an unresponsive daemon
-				if !isGettingDaemon {
-					log.Println(coinData.CurrencyCode + "daemon is unresponsive...")
-
-					if runningDaemon != nil {
-						Stop(coinData, runningDaemon)
-					}
-
-					cmd, err := DownloadAndStartManager(coinData)
-
-					if err != nil {
-						log.Println(err)
-					} else {
-						runningDaemon = cmd
-					}
-				}
-
+			if runningDaemon != nil {
+				log.Println(coinData.CurrencyCode + " daemon is already running, just stop")
+				Stop(coinData, runningDaemon)
 			}
 
+			// kick off goroutine for DownloadAndStart
+			go func() {
+
+				cmd, err := DownloadAndStart(coinData)
+
+				if err != nil {
+					log.Println(err)
+				} else {
+					runningDaemon = cmd
+				}
+
+			}()
+
 		}
-	}()
+	}
 }
 
-// isAlive performs a simple rpc command to current
-// coin's daemon :: returns false on error
+// returns false on error
 func isAlive(coinData conf.CoinData) bool {
 
 	isLiving := true
 
-	reqData := daemonrpc.RPCRequestData{}
-	reqData.Method = "getblockcount"
+	n := daemonrpc.RPCRequestData{}
+	n.Method = "getblockcount"
 
-	_, err := daemonrpc.RequestDaemon(coinData, reqData, conf.DaemonConf)
+	_, err := daemonrpc.RequestDaemon(coinData, n, conf.DaemonConf)
 
 	if err != nil {
 		isLiving = false
@@ -165,11 +166,11 @@ func isAlive(coinData conf.CoinData) bool {
 
 }
 
-// DownloadAndStartManager checks for current coin's daemon
+// DownloadAndStart checks for current coin's daemon
 // and either downloads it or starts it up if already detected
-func DownloadAndStartManager(coinData conf.CoinData) (*exec.Cmd, error) {
+func DownloadAndStart(coinData conf.CoinData) (*exec.Cmd, error) {
 
-	path, err := CheckForActiveDaemons(coinData)
+	path, err := CheckForDaemon(coinData)
 
 	// download daemon if not found
 	if err != nil {
@@ -190,9 +191,9 @@ func Stop(coinData conf.CoinData, cmd *exec.Cmd) {
 	}
 }
 
-// CheckForActiveDaemons checks for current coin's daemon
+// CheckForDaemon checks for current coin's daemon
 // in appropriate path and reports back to DownLoadAndStartDaemons
-func CheckForActiveDaemons(coinData conf.CoinData) (string, error) {
+func CheckForDaemon(coinData conf.CoinData) (string, error) {
 
 	// get the latest release version, equal to daemon version
 	releaseVersion := coinData.DaemonVersion
@@ -231,18 +232,27 @@ func startCoinDaemons(coinData conf.CoinData, daemonPath string) *exec.Cmd {
 	rpcUser := fmt.Sprintf("-rpcuser=%s", conf.DaemonConf.RPCUser)
 	rpcPassword := fmt.Sprintf("-rpcpassword=%s", conf.DaemonConf.RPCPassword)
 
-	// build up the command flags from current coin config
-	addressIndex := fmt.Sprintf("-addressindex=%s", coinData.CmdAddressIndex)
-	dataDir := fmt.Sprintf("-datadir=/data/%s", coinData.DataDir)
+	cmdStr := []string{rpcUser, rpcPassword}
 
-	// check to see if testnet is needed
-	testnet := ""
+
+
 	if coinData.UseTestNet {
-		testnet = "-testnet"
+		cmdStr = append(cmdStr, "-testnet")
 	}
 
+	if coinData.IndexTransactions {
+		cmdStr = append(cmdStr, "-addressindex=1")
+	}
+
+	fs.CreateDataDir(coinData.DataDir)
+	p, _ := fs.GetCurrentPath()
+	p += coinData.DataDir
+
+	s := fmt.Sprintf("-datadir=%s", p)
+	cmdStr = append(cmdStr, s)
+
 	// setup to index transactions (required for API functionality)
-	cmd := exec.Command(daemonPath, rpcUser, rpcPassword, addressIndex, dataDir, testnet)
+	cmd := exec.Command(daemonPath, cmdStr...)
 
 	err := cmd.Start()
 

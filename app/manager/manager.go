@@ -5,22 +5,27 @@ import (
 	"github.com/Encrypt-S/kauri-api/app/daemon"
 	"github.com/Encrypt-S/kauri-api/app/daemon/daemonapi"
 	"github.com/gorilla/mux"
+	"log"
 )
 
 // StartAllDaemonManagers ranges through coins, starts daemons
 func StartAllDaemonManagers(activeCoins []conf.CoinData)  {
 
-	for _, coin := range activeCoins {
-		daemon.StartDaemonManager(coin)
+	log.Println("ranging through active coins, starting daemons")
+
+	for _, coinData := range activeCoins {
+		daemon.StartManager(coinData)
 	}
 
 }
 
-// StartAllTxHandlers ranges through activeCoins, inits handlers
-func StartAllTxHandlers(r *mux.Router, activeCoins []conf.CoinData)  {
+// StartWalletHandlers ranges through activeCoins, inits handlers
+func StartWalletHandlers(r *mux.Router, activeCoins []conf.CoinData)  {
 
-	for _, coin := range activeCoins {
-		daemonapi.InitTxHandlers(r, coin, "api")
+	log.Println("ranging through active coins, initialising wallet handlers")
+
+	for _, coinData := range activeCoins {
+		daemonapi.InitWalletHandlers(r, coinData, "api")
 	}
 
 }
