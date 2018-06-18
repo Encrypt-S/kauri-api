@@ -25,9 +25,7 @@ This should build the app and provide you with API functionality @ 127.0.0.1:900
 Developers working on the [Kauri Wallet](https://github.com/Encrypt-S/kauri-wallet) can leverage the following to access the Kauri API endpoints from their local dev environment:
 
 
-1. Download and install [Go](https://golang.org/dl/)
-
-2. Download the proper `kauri-api` binary from [releases](https://github.com/Encrypt-S/kauri-api/releases)
+1. Download the proper `kauri-api` binary from [releases](https://github.com/Encrypt-S/kauri-api/releases)
 
 2. Extract `kauri-api` release
 
