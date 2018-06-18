@@ -1,18 +1,21 @@
 {
-  "config": {
-    "navconf": "",
-    "runningNavVersion": "4.1.1",
-    "allowedIps": null,
-    "uiPassword": "$2a$14$/oYsm.EKOXhcg9UrU1f5oOzY1pYYBNiZAK3aFl647Pw/23S9R6qIO",
-
     "coins": [
       {
         "name": "NavCoin",
         "currencyCode": "NAV",
-        "daemonVersion": "4.1.1",
+        "libPath": "navcoin",
+        "dataDir": "/lib/nav",
+        "daemonHeartbeat": 50000,
+        "daemonVersion": "4.2.1",
+        "WindowsDaemonName": "navcoind.exe",
+        "DarwinDaemonName": "navcoind",
+        "latestReleaseAPI": "https://api.github.com/repos/NAVCoin/navcoin-core/releases/latest",
         "releaseAPI": "https://api.github.com/repos/NAVCoin/navcoin-core/releases",
-        "latestReleaseAPI": "https://api.github.com/repos/NAVCoin/navcoin-core/releases/latest"
+        "livePort": 44444,
+        "testnetPort": 44445,
+        "useTestNet" : false,
+        "indexTransactions": true
       }
     ]
-  }
+
 }

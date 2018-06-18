@@ -26,24 +26,17 @@ type RPCResponse struct {
 
 // RequestDaemon requests the data via the daemon's RPC api
 // allows auto switches between the testnet and live depending on the config
-func RequestDaemon(rpcReqData RPCRequestData, navConf conf.DaemonConfig) (*http.Response, error) {
+func RequestDaemon(coinData conf.CoinData, rpcReqData RPCRequestData, daemonConf conf.DaemonConfig) (*http.Response, error) {
 
-	serverConf := conf.ServerConf
-
-	username := navConf.RPCUser
-	password := navConf.RPCPassword
+	username := daemonConf.RPCUser
+	password := daemonConf.RPCPassword
 
 	client := &http.Client{}
 
 	jsonValue, _ := json.Marshal(rpcReqData)
 
-	// set the port to live
-	port := serverConf.LivePort
-
-	// check to see if we are in test net mode
-	if serverConf.UseTestnet {
-		port = serverConf.TestPort
-	}
+	// set the live port
+	port := coinData.LivePort
 
 	// build the url
 	url := fmt.Sprintf("http://127.0.0.1:%d", port)
