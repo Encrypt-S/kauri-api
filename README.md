@@ -10,7 +10,8 @@
 The API for the open-source, multi-currency [Kauri Wallet](https://github.com/Encrypt-S/kauri-wallet).
 
 ## API Development
-Developers working on the Kauri API can leverage the following to get up and running:
+
+Installation for Developers working on the Kauri API
 
     go get -u github.com/golang/dep/cmd/dep
     go get github.com/Encrypt-S/kauri-api
@@ -20,8 +21,7 @@ Developers working on the Kauri API can leverage the following to get up and run
 This should build the app and provide you with API functionality @ 127.0.0.1:9002
 
 ## UI Development
-Developers working on the [Kauri Wallet](https://github.com/Encrypt-S/kauri-wallet) can leverage the following to access the Kauri API endpoints from their local dev environment:
-
+Installation for Developers working on the [Kauri Wallet](https://github.com/Encrypt-S/kauri-wallet)
 
 1. Download the proper `kauri-api` binary from [releases](https://github.com/Encrypt-S/kauri-api/releases)
 
@@ -36,30 +36,34 @@ Developers working on the [Kauri Wallet](https://github.com/Encrypt-S/kauri-wall
 6. Setup Postman or something similar to test Kauri API endpoints
 
 ### Swagger Spec
+
 https://app.swaggerhub.com/apis/Encrypt-S/kauri-api/0.0.1
 
-### /v1/getrawtransactions
-The initial endpoint can be tested in as follows:
+### API Calls
 
-#### POST
-http://127.0.0.1:9002/api/transactions/v1/getrawtransactions
+The initial endpoint can be tested in Postman, Paw, Shell, Angular app, etc...
 
-#### AUTH
-username: rpcuser
-password: rpcpassword
+#### POST to /v1/getrawtransactions
 
-#### HEADERS
+    http://127.0.0.1:9002/api/transactions/v1/getrawtransactions
+
+#### Auth
+
+    username: rpcuser
+    password: rpcpassword
+
+#### Headers
 `Content-Type: application/json`
 
-#### BODY
+#### Body
 This is the structure of the raw request body to be used in the POST:
-```
-{"transactions": [
-    {"currency":  "NAV", "addresses": ["validNAVaddress1", "validNAVaddress2"]}
-]}
-```
 
-#### MODELS
+    {"transactions": [
+        {"currency":  "NAV", "addresses": ["validNAVaddress1", "validNAVaddress2"]}
+    ]}
+
+#### Models
+
 The request body above can be organised into the following models:
 
   **transactions** - Addresses for each currency in wallet
@@ -74,14 +78,6 @@ The request body above can be organised into the following models:
       currency  string
       addresses WalletAddresses[...]
     }
-
-  **WalletItem** - Object containing currency and array of addresses
-
-    WalletItem {
-      currency  string
-      addresses WalletAddresses[...]
-    }
-
 
   **WalletAddresses** - Array of addresses
 
