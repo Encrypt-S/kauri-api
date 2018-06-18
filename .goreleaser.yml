@@ -23,6 +23,11 @@ archive:
   format_overrides:
     - goos: windows
       format: zip
+  files:
+    - LICENSE
+    - README.md
+    - app/app-config.json
+    - app/server-config.json
 changelog:
   sort: asc
   filters:
