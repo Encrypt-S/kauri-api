@@ -9,8 +9,6 @@
 
 The API for the open-source, multi-currency [Kauri Wallet](https://github.com/Encrypt-S/kauri-wallet).
 
-![](./img/kauri-tree.png)
-
 ## API Development
 Developers working on the Kauri API can leverage the following to get up and running:
 
@@ -86,6 +84,7 @@ The request body above can be organised into the following models:
 
 
   **WalletAddresses** - Array of addresses
+
     WalletAddresses [string, string, string]
 
 
