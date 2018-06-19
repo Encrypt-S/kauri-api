@@ -16,27 +16,17 @@ type CoinData struct {
 	CurrencyCode      string `json:"currencyCode"`
 	LibPath           string `json:"libPath"`
 	DataDir           string `json:"dataDir"`
-	DaemonHeartbeat   int  `json:"daemonHeartbeat"`
+	DaemonHeartbeat   int    `json:"daemonHeartbeat"`
 	DaemonVersion     string `json:"daemonVersion"`
 	WindowsDaemonName string `json:"windowsDaemonName"`
 	DarwinDaemonName  string `json:"darwinDaemonName"`
 	LatestReleaseAPI  string `json:"latestReleaseApi"`
 	ReleaseAPI        string `json:"ReleaseApi"`
-	LivePort          int  `json:"livePort"`
-	TestNetPort       int  `json:"testnetPort"`
+	LivePort          int    `json:"livePort"`
+	TestNetPort       int    `json:"testnetPort"`
 	UseTestNet        bool   `json:"useTestNet"`
-	IndexTransactions   bool `json:"indexTransactions"`
+	IndexTransactions bool   `json:"indexTransactions"`
 }
-
-// StartConfigManager sets up the ticker loop to load app config
-//func StartConfigManager() {
-//	ticker := time.NewTicker(time.Millisecond * 500)
-//	go func() {
-//		for range ticker.C {
-//			LoadAppConfig()
-//		}
-//	}()
-//}
 
 // LoadAppConfig sets up viper, reads and parses app config
 func LoadAppConfig() error {
@@ -63,4 +53,3 @@ func LoadAppConfig() error {
 
 	return nil
 }
-

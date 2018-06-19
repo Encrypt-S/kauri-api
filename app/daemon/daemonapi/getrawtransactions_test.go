@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/Encrypt-S/kauri-api/app/conf"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/jarcoal/httpmock.v1"
-	"github.com/Encrypt-S/kauri-api/app/conf"
 )
 
 func mockCoinData() conf.CoinData {
@@ -130,7 +130,7 @@ func Test_getTxIDsRPC(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder("POST", "http://127.0.0.1:0",
-	httpmock.NewStringResponder(200, mockGetTxIdsResponseData()))
+		httpmock.NewStringResponder(200, mockGetTxIdsResponseData()))
 
 	coinData := mockCoinData()
 
@@ -148,7 +148,7 @@ func Test_getRawTx(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder("POST", "http://127.0.0.1:0",
-	httpmock.NewStringResponder(200, mockGetRawTxResponseData()))
+		httpmock.NewStringResponder(200, mockGetRawTxResponseData()))
 
 	coinData := mockCoinData()
 
@@ -165,11 +165,11 @@ func Test_getVerboseTx(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder("POST", "http://127.0.0.1:0",
-	httpmock.NewStringResponder(200, mockGetRawTxVerboseResponseData()))
+		httpmock.NewStringResponder(200, mockGetRawTxVerboseResponseData()))
 
 	coinData := mockCoinData()
 
-	rpcResp, _ := getRawTxVerbose(coinData,"11a7071a43a8da2b9ac116865a6cd92c985c3f7cbde63933d253f88dffaa311a")
+	rpcResp, _ := getRawTxVerbose(coinData, "11a7071a43a8da2b9ac116865a6cd92c985c3f7cbde63933d253f88dffaa311a")
 
 	assert.Equal(t, "123", rpcResp)
 

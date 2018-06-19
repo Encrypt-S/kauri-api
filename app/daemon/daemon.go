@@ -15,8 +15,8 @@ import (
 	"fmt"
 
 	"github.com/Encrypt-S/kauri-api/app/conf"
-	"github.com/Encrypt-S/kauri-api/app/fs"
 	"github.com/Encrypt-S/kauri-api/app/daemon/daemonrpc"
+	"github.com/Encrypt-S/kauri-api/app/fs"
 )
 
 type OSInfo struct {
@@ -233,8 +233,6 @@ func startCoinDaemons(coinData conf.CoinData, daemonPath string) *exec.Cmd {
 	rpcPassword := fmt.Sprintf("-rpcpassword=%s", conf.DaemonConf.RPCPassword)
 
 	cmdStr := []string{rpcUser, rpcPassword}
-
-
 
 	if coinData.UseTestNet {
 		cmdStr = append(cmdStr, "-testnet")

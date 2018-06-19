@@ -10,8 +10,8 @@ import (
 
 	"github.com/Encrypt-S/kauri-api/app/api"
 	"github.com/Encrypt-S/kauri-api/app/conf"
-	"github.com/gorilla/mux"
 	"github.com/Encrypt-S/kauri-api/app/manager"
+	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -36,8 +36,6 @@ func main() {
 		log.Println("Failed to load the app config: " + err.Error())
 	}
 
-	//conf.StartConfigManager()
-
 	// load the dev config file if one is set
 	conf.LoadDevConfig()
 
@@ -59,4 +57,3 @@ func main() {
 	// start http server and listen up
 	http.ListenAndServe(port, router)
 }
-
