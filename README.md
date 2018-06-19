@@ -64,7 +64,7 @@ This is the structure of the raw request body to be used in the POST:
 
 #### Models
 
-The request body above can be organised into the following models:
+The request body has the following model structure:
 
   **transactions** - Addresses for each currency in wallet
 
@@ -82,6 +82,101 @@ The request body above can be organised into the following models:
   **WalletAddresses** - Array of addresses
 
     WalletAddresses [string, string, string]
+
+#### Response `200 OK`
+
+A successful response will contain raw transaction data for supplied wallet addresses.
+
+    {
+      "data": [
+        {
+          "currency": "NAV",
+          "addresses": [
+            {
+              "address": "validNAVaddress1",
+              "transactions": [
+                  {
+                    "txid": "11a7071a43a8da2b9ac116865a6cd92c985c3f7cbde63933d253f88dffaa311a",
+                    "rawtx": "",
+                    "verbose": null
+                  },
+                  {
+                    "txid": "c8dad515d5e5c7a45bc5b3814fcf5e1f63474c9b67f84ee2ab9803f809e94929",
+                    "rawtx": "01000000f0f33457011a31aaff8df853d23339e6bd7c3f5c982cd96c5a8616c19a2bdaa8431a07a711010000006a47304402202fbb2c5955013fc4806420a66e5c9116902c0263fe7920ae104ff1818ef62efd022040857e3108ae8f30e8a0800f8f892c8a97aa88b67b8e40032e2ba33d3445230e012103f6c3b8154a19327783dd46e0dda13f812f57b00f9246387f62d5ece8bed767b4ffffffff0300000000000000000000debdfcc1c60100232103f6c3b8154a19327783dd46e0dda13f812f57b00f9246387f62d5ece8bed767b4ac3688d6fcc1c60100232103f6c3b8154a19327783dd46e0dda13f812f57b00f9246387f62d5ece8bed767b4ac00000000",
+                    "verbose": {
+                        "anon-destination": "",
+                        "blockhash": "52260690630225abb5b9bd1f9b72774ced5f9b74e18ac2ab7dd5b76d229fbfdd",
+                        "blocktime": 1463088112,
+                        "confirmations": 55769,
+                        "hash": "c8dad515d5e5c7a45bc5b3814fcf5e1f63474c9b67f84ee2ab9803f809e94929",
+                        "height": 523,
+                        "hex": "01000000f0f33457011a31aaff8df853d23339e6bd7c3f5c982cd96c5a8616c19a2bdaa8431a07a711010000006a47304402202fbb2c5955013fc4806420a66e5c9116902c0263fe7920ae104ff1818ef62efd022040857e3108ae8f30e8a0800f8f892c8a97aa88b67b8e40032e2ba33d3445230e012103f6c3b8154a19327783dd46e0dda13f812f57b00f9246387f62d5ece8bed767b4ffffffff0300000000000000000000debdfcc1c60100232103f6c3b8154a19327783dd46e0dda13f812f57b00f9246387f62d5ece8bed767b4ac3688d6fcc1c60100232103f6c3b8154a19327783dd46e0dda13f812f57b00f9246387f62d5ece8bed767b4ac00000000",
+                        "locktime": 0,
+                        "size": 258,
+                        "time": 1463088112,
+                        "txid": "c8dad515d5e5c7a45bc5b3814fcf5e1f63474c9b67f84ee2ab9803f809e94929",
+                        "version": 1,
+                        "vin": [
+                            {
+                              "scriptSig": {
+                                  "asm": "304402202fbb2c5955013fc4806420a66e5c9116902c0263fe7920ae104ff1818ef62efd022040857e3108ae8f30e8a0800f8f892c8a97aa88b67b8e40032e2ba33d3445230e[ALL] 03f6c3b8154a19327783dd46e0dda13f812f57b00f9246387f62d5ece8bed767b4",
+                                  "hex": "47304402202fbb2c5955013fc4806420a66e5c9116902c0263fe7920ae104ff1818ef62efd022040857e3108ae8f30e8a0800f8f892c8a97aa88b67b8e40032e2ba33d3445230e012103f6c3b8154a19327783dd46e0dda13f812f57b00f9246387f62d5ece8bed767b4"
+                              },
+                              "sequence": 4294967295,
+                              "txid": "11a7071a43a8da2b9ac116865a6cd92c985c3f7cbde63933d253f88dffaa311a",
+                              "vout": 1
+                            }
+                        ],
+                        "vout": [
+                            {
+                              "n": 0,
+                              "scriptPubKey": {
+                                  "asm": "",
+                                  "hex": "",
+                                  "type": "nonstandard"
+                              },
+                              "value": 0,
+                              "valueSat": 0
+                            },
+                            {
+                              "n": 1,
+                              "scriptPubKey": {
+                                  "addresses": [
+                                      "NW7uXr4ZAeJKigMGnKbSLfCBQY59cH1T8G"
+                                  ],
+                                  "asm": "03f6c3b8154a19327783dd46e0dda13f812f57b00f9246387f62d5ece8bed767b4 OP_CHECKSIG",
+                                  "hex": "2103f6c3b8154a19327783dd46e0dda13f812f57b00f9246387f62d5ece8bed767b4ac",
+                                  "reqSigs": 1,
+                                  "type": "pubkey"
+                              },
+                              "value": 5000114.48,
+                              "valueSat": 500011448000000
+                            },
+                            {
+                              "n": 2,
+                              "scriptPubKey": {
+                                  "addresses": [
+                                      "NW7uXr4ZAeJKigMGnKbSLfCBQY59cH1T8G"
+                                  ],
+                                  "asm": "03f6c3b8154a19327783dd46e0dda13f812f57b00f9246387f62d5ece8bed767b4 OP_CHECKSIG",
+                                  "hex": "2103f6c3b8154a19327783dd46e0dda13f812f57b00f9246387f62d5ece8bed767b4ac",
+                                  "reqSigs": 1,
+                                  "type": "pubkey"
+                              },
+                              "value": 5000114.49616438,
+                              "valueSat": 500011449616438
+                            }
+                        ],
+                        "vsize": 258
+                      }
+                  }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+
 
 
 
