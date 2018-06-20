@@ -72,7 +72,7 @@ func CreateDataDir(dirPath string) {
 	// build the path for current daemon
 	path += dirPath
 
-	err = os.Mkdir(path, 0777)
+	err = os.MkdirAll(path, 0777)
 
 	if err != nil {
 		log.Println(err)
