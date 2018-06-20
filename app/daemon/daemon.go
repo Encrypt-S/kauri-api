@@ -285,7 +285,7 @@ func downloadDaemons(coinData conf.CoinData) {
 
 	dlPath, dlName, _ := getDownloadPathAndName(coinData, releaseInfo)
 
-	log.Println("Attempting to get release data for NAVCoin v" + coinData.DaemonVersion)
+	log.Println("Attempting to get release data for " + coinData.CurrencyCode + " daemon v" + coinData.DaemonVersion)
 
 	isGettingDaemon = true // flag we are getting the daemon
 
@@ -299,7 +299,7 @@ func downloadDaemons(coinData conf.CoinData) {
 // release TagName to the coin's DaemonVersion via gitHubReleaseInfo function
 func getReleaseDataForVersion(coinData conf.CoinData) (GitHubReleaseData, error) {
 
-	log.Println("Attempting to get release data for NAVCoin v" + coinData.DaemonVersion)
+	log.Println("Attempting to get release data for " + coinData.CurrencyCode + " daemon v" + coinData.DaemonVersion)
 
 	releases, err := gitHubReleaseInfo(coinData.CurrencyCode, coinData.ReleaseAPI)
 
@@ -307,7 +307,7 @@ func getReleaseDataForVersion(coinData conf.CoinData) (GitHubReleaseData, error)
 
 	for _, elem := range releases {
 		if elem.TagName == coinData.DaemonVersion {
-			log.Println("Release data found for NAVCoin v" + coinData.DaemonVersion)
+			log.Println("Release data found for " + coinData.CurrencyCode + " daemon v" + coinData.DaemonVersion)
 			e = elem.GitHubReleaseData
 		}
 	}
@@ -318,7 +318,9 @@ func getReleaseDataForVersion(coinData conf.CoinData) (GitHubReleaseData, error)
 
 // gitHubReleaseInfo takes the coin's ReleaseAPI and queries for data
 func gitHubReleaseInfo(currencyCode string, releaseAPI string) (GitHubReleases, error) {
-	log.Println("Retrieving " + currencyCode + "Github release data from: " + releaseAPI)
+
+	log.Println("Retrieving " + currencyCode + " Github release data from: " + releaseAPI)
+
 	response, err := http.Get(releaseAPI)
 
 	if err != nil {
@@ -357,14 +359,14 @@ func getDownloadPathAndName(coinData conf.CoinData, gitHubReleaseData GitHubRele
 			// windows os check to provide zip package :: .zip
 			if strings.Contains(asset.Name, "win") {
 				if filepath.Ext(asset.Name) == ".zip" {
-					log.Println("win64 detected - preparing NAVCoin .zip download")
+					log.Println("win64 detected - preparing " + coinData.CurrencyCode + " daemon .zip download")
 					downloadPath = releaseInfo.Assets[e].BrowserDownloadURL
 					downloadName = releaseInfo.Assets[e].Name
 				}
 			}
 			// osx64 check to provide gzip package :: tar.gz
 			if strings.Contains(asset.Name, "osx64") {
-				log.Println("osx64 detected - preparing NAVCoin tar.gz download")
+				log.Println("osx64 detected - preparing " + coinData.CurrencyCode + " daemon tar.gz download")
 				downloadPath = releaseInfo.Assets[e].BrowserDownloadURL
 				downloadName = releaseInfo.Assets[e].Name
 			}
