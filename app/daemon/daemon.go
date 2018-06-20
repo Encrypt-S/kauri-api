@@ -15,19 +15,21 @@ import (
 	"fmt"
 
 	"github.com/Encrypt-S/kauri-api/app/conf"
-	"github.com/Encrypt-S/kauri-api/app/daemon/daemonrpc"
 	"github.com/Encrypt-S/kauri-api/app/fs"
 )
 
+// OSInfo defines OS's
 type OSInfo struct {
 	DaemonName string
 	OS         string
 }
 
+// GitHubReleases holds release data
 type GitHubReleases []struct {
 	GitHubReleaseData
 }
 
+// GitHubReleaseData defines release data avail
 type GitHubReleaseData struct {
 	URL             string `json:"url"`
 	AssetsURL       string `json:"assets_url"`
@@ -116,55 +118,36 @@ func StartManager(coinData conf.CoinData) {
 		hbInterval = coinData.DaemonHeartbeat
 	}
 
-	// check to see if the daemon is alive
-	if isAlive(coinData) {
-		log.Println(coinData.CurrencyCode + " daemon is alive!")
-	} else {
-		log.Println(coinData.CurrencyCode + " daemon is not yet alive...")
-
-		// only do thing if we are already not getting the daemon
-		if !isGettingDaemon {
-			log.Println(coinData.CurrencyCode + " daemon is unresponsive...")
-
-			if runningDaemon != nil {
-				log.Println(coinData.CurrencyCode + " daemon is already running, just stop")
-				Stop(coinData, runningDaemon)
-			}
-
-			// kick off goroutine for DownloadAndStart
-			go func() {
-
-				cmd, err := DownloadAndStart(coinData)
-
-				if err != nil {
-					log.Println(err)
-				} else {
-					runningDaemon = cmd
-				}
-
-			}()
-
+	// kick off goroutine for DownloadAndStart
+	go func() {
+		cmd, err := DownloadAndStart(coinData)
+		if err != nil {
+			log.Println(err)
+		} else {
+			runningDaemon = cmd
 		}
-	}
+
+	}()
+
 }
 
 // returns false on error
-func isAlive(coinData conf.CoinData) bool {
-
-	isLiving := true
-
-	n := daemonrpc.RPCRequestData{}
-	n.Method = "getblockcount"
-
-	_, err := daemonrpc.RequestDaemon(coinData, n, conf.DaemonConf)
-
-	if err != nil {
-		isLiving = false
-	}
-
-	return isLiving
-
-}
+//func isAlive(coinData conf.CoinData) bool {
+//
+//	isLiving := true
+//
+//	n := daemonrpc.RPCRequestData{}
+//	n.Method = "getblockcount"
+//
+//	_, err := daemonrpc.RequestDaemon(coinData, n, conf.DaemonConf)
+//
+//	if err != nil {
+//		isLiving = false
+//	}
+//
+//	return isLiving
+//
+//}
 
 // DownloadAndStart checks for current coin's daemon
 // and either downloads it or starts it up if already detected
@@ -184,12 +167,13 @@ func DownloadAndStart(coinData conf.CoinData) (*exec.Cmd, error) {
 
 }
 
-func Stop(coinData conf.CoinData, cmd *exec.Cmd) {
+// Stop kills the running daemon process
+// func Stop(coinData conf.CoinData, cmd *exec.Cmd) {
 
-	if err := cmd.Process.Kill(); err != nil {
-		log.Fatal("failed to kill" + coinData.CurrencyCode + "process" + err.Error())
-	}
-}
+// 	if err := cmd.Process.Kill(); err != nil {
+// 		log.Fatal("Failed to terminate " + coinData.CurrencyCode + " daemon process" + err.Error())
+// 	}
+// }
 
 // CheckForDaemon checks for current coin's daemon
 // in appropriate path and reports back to DownLoadAndStartDaemons
@@ -197,8 +181,6 @@ func CheckForDaemon(coinData conf.CoinData) (string, error) {
 
 	// get the latest release version, equal to daemon version
 	releaseVersion := coinData.DaemonVersion
-
-	log.Println("Checking" + coinData.CurrencyCode + "daemon for v" + releaseVersion)
 
 	// get the apps current path
 	path, err := fs.GetCurrentPath()
@@ -208,15 +190,14 @@ func CheckForDaemon(coinData conf.CoinData) (string, error) {
 
 	// build the path for current daemon
 	path += "/lib/" + coinData.LibPath + "-" + releaseVersion + "/bin/" + getOSInfo(coinData).DaemonName
-	log.Println("Searching for" + coinData.CurrencyCode + "daemon at " + path)
+	log.Println("Searching for " + coinData.CurrencyCode + " daemon at " + path)
 
-	// check the current daemon exists
+	// check that the current daemon exists
 	if !fs.Exists(path) {
-		log.Println(coinData.CurrencyCode + "daemon not found for v" + releaseVersion)
-		return "", errors.New(coinData.CurrencyCode + "daemon found for v" + releaseVersion)
-	} else {
-		log.Println(coinData.CurrencyCode + "daemon located for v" + releaseVersion)
+		return "", errors.New(coinData.CurrencyCode + " daemon not found")
 	}
+
+	log.Println(coinData.CurrencyCode + " daemon located for v" + releaseVersion)
 
 	return path, nil
 
@@ -226,7 +207,7 @@ func CheckForDaemon(coinData conf.CoinData) (string, error) {
 // builds the command arguments, and executes start command
 func startCoinDaemons(coinData conf.CoinData, daemonPath string) *exec.Cmd {
 
-	log.Println("Booting" + coinData.CurrencyCode + "daemon")
+	log.Println("Booting " + coinData.CurrencyCode + " daemon")
 
 	// build up the command flags from daemon config
 	rpcUser := fmt.Sprintf("-rpcuser=%s", conf.DaemonConf.RPCUser)
@@ -304,6 +285,8 @@ func downloadDaemons(coinData conf.CoinData) {
 
 	dlPath, dlName, _ := getDownloadPathAndName(coinData, releaseInfo)
 
+	log.Println("Attempting to get release data for NAVCoin v" + coinData.DaemonVersion)
+
 	isGettingDaemon = true // flag we are getting the daemon
 
 	fs.DownloadExtract(dlPath, dlName)
@@ -320,7 +303,7 @@ func getReleaseDataForVersion(coinData conf.CoinData) (GitHubReleaseData, error)
 
 	releases, err := gitHubReleaseInfo(coinData.CurrencyCode, coinData.ReleaseAPI)
 
-	var e GitHubReleaseData = GitHubReleaseData{}
+	var e = GitHubReleaseData{}
 
 	for _, elem := range releases {
 		if elem.TagName == coinData.DaemonVersion {
@@ -371,7 +354,7 @@ func getDownloadPathAndName(coinData conf.CoinData, gitHubReleaseData GitHubRele
 		asset := releaseInfo.Assets[e]
 
 		if strings.Contains(asset.Name, getOSInfo(coinData).OS) {
-			// windows os check to provide .zip
+			// windows os check to provide zip package :: .zip
 			if strings.Contains(asset.Name, "win") {
 				if filepath.Ext(asset.Name) == ".zip" {
 					log.Println("win64 detected - preparing NAVCoin .zip download")
@@ -385,8 +368,6 @@ func getDownloadPathAndName(coinData conf.CoinData, gitHubReleaseData GitHubRele
 				downloadPath = releaseInfo.Assets[e].BrowserDownloadURL
 				downloadName = releaseInfo.Assets[e].Name
 			} else {
-				// TODO: more checks to be added for other systems
-				// fall through to defaults :: fire-in-the-hole mode
 				downloadPath = releaseInfo.Assets[e].BrowserDownloadURL
 				downloadName = releaseInfo.Assets[e].Name
 			}

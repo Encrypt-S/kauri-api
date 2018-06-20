@@ -14,11 +14,23 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Idflags set by GoReleaser
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
+
 func main() {
 
-	// prime the app
+	// init app errors
 	api.BuildAppErrors()
+
+	// init rpc details
 	conf.CreateRPCDetails()
+
+	//
+	fmt.Printf("%v, commit %v, built at %v", version, commit, date)
 
 	// log out server runtime OS and Architecture
 	log.Println(fmt.Sprintf("Server running in %s:%s", runtime.GOOS, runtime.GOARCH))

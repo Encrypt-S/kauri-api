@@ -236,6 +236,7 @@ func GetCurrentPath() (string, error) {
 		return "", err
 	}
 	exPath := filepath.Dir(ex)
+	log.Println("GetCurrentPath = " + exPath)
 	return exPath, nil
 }
 

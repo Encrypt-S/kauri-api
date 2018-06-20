@@ -5,6 +5,7 @@ builds:
   goos:
     - linux
     - darwin
+    - windows
   goarch:
     - 386
     - amd64
@@ -15,11 +16,10 @@ builds:
       goarch: 386
 archive:
   replacements:
-    darwin: Darwin
-    linux: Linux
-    windows: Windows
+    darwin: macOS
+    windows: windows
     386: i386
-    amd64: x86_64
+    amd64: 64-bit
   format_overrides:
     - goos: windows
       format: zip
