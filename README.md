@@ -7,7 +7,7 @@
 ![GitHub release](https://img.shields.io/github/release/Encrypt-S/kauri-api.svg)
 ![Last commit](https://img.shields.io/github/last-commit/Encrypt-S/kauri-api.svg)
 
-The API for the open-source, multi-currency [Kauri Wallet](https://github.com/Encrypt-S/kauri-wallet).
+The API for the open-source, multi-currency [Kauri Wallet](https://navhub.org/projects/kauri/)
 
 ## API Development
 
@@ -21,21 +21,22 @@ Installation for Developers working on the Kauri API
 This should build the app and provide you with API functionality @ 127.0.0.1:9002
 
 ## UI Development
+
 Installation for Developers working on the [Kauri Wallet](https://github.com/Encrypt-S/kauri-wallet)
 
-1. Download the proper `kauri-api` binary from [releases](https://github.com/Encrypt-S/kauri-api/releases)
+1. Download the latest `kauri-api` binary from [releases](https://github.com/Encrypt-S/kauri-api/releases)
 
 2. Extract `kauri-api` release
 
-3. Locate the dir containing extracted binaries `cd [extract-dir]`
+3. CD into the dir containing extracted binaries `cd [extract-dir]`
 
-4. Run the Go app `./kauri-api`
+4. Run the app `./kauri-api`
 
 5. Ensure you have NAV daemon (`navcoind`) running in your Activity / Process Monitor
 
 6. Setup Postman or something similar to test Kauri API endpoints
 
-### Swagger Spec
+### Swagger API Spec
 
 https://app.swaggerhub.com/apis/Encrypt-S/kauri-api/0.1.0
 
@@ -59,7 +60,7 @@ The initial endpoint can be tested in Postman, Paw, Shell, Angular app, etc...
 This is the structure of the raw request body to be used in the POST:
 
     {"transactions": [
-        {"currency":  "NAV", "addresses": ["validNAVaddress1", "validNAVaddress2"]}
+        {"currency":  "NAV", "addresses": ["NW7uXr4ZAeJKigMGnKbSLfCBQY59cH1T8G", "NUDke42E3fwLqaBbBFRyVSTETuhWAi7ugk"]}
     ]}
 
 #### Models
@@ -93,7 +94,7 @@ A successful response will contain raw transaction data for supplied wallet addr
           "currency": "NAV",
           "addresses": [
             {
-              "address": "validNAVaddress1",
+              "address": "NW7uXr4ZAeJKigMGnKbSLfCBQY59cH1T8G",
               "transactions": [
                   {
                     "txid": "11a7071a43a8da2b9ac116865a6cd92c985c3f7cbde63933d253f88dffaa311a",
