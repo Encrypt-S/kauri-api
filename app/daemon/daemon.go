@@ -367,10 +367,8 @@ func getDownloadPathAndName(coinData conf.CoinData, gitHubReleaseData GitHubRele
 				log.Println("osx64 detected - preparing NAVCoin tar.gz download")
 				downloadPath = releaseInfo.Assets[e].BrowserDownloadURL
 				downloadName = releaseInfo.Assets[e].Name
-			} else {
-				downloadPath = releaseInfo.Assets[e].BrowserDownloadURL
-				downloadName = releaseInfo.Assets[e].Name
 			}
+
 		}
 	}
 
