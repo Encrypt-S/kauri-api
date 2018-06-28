@@ -38,7 +38,8 @@ Installation for Developers working on the [Kauri Wallet](https://github.com/Enc
 
 ### Swagger API Spec
 
-https://app.swaggerhub.com/apis/Encrypt-S/kauri-api/0.1.0
+https://app.swaggerhub.com/apis/Encrypt-S/kauri-api/0.1.1
+
 
 ### API Calls
 
