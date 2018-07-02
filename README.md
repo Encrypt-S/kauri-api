@@ -36,6 +36,9 @@ Installation for Developers working on the [Kauri Wallet](https://github.com/Enc
 
 6. Setup Postman or something similar to test Kauri API endpoints
 
+asciicast of installation on macOS:
+[![asciicast](https://asciinema.org/a/v7uCRhup0yrSVAXNGIM04nkGr.png)](https://asciinema.org/a/v7uCRhup0yrSVAXNGIM04nkGr)
+
 ### Swagger API Spec
 
 https://app.swaggerhub.com/apis/Encrypt-S/kauri-api/0.1.1
